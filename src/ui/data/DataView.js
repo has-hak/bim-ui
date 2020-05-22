@@ -8,6 +8,7 @@ import CompilationTable from "./CompilationTable";
 import ResourcesTable from "./ResourcesTable";
 import MaterialsTable from "./MaterialsTable";
 import WorkforcesTable from "./WorkforcesTable";
+import MachinesTable from "./MachinesTable";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -21,7 +22,7 @@ function DataView(props) {
     const match = props.match;
     const classes = useStyles();
 
-    const tabUrls = [`${match.url}/compilations`, `${match.url}/resources`, `${match.url}/materials`, `${match.url}/workforces`]
+    const tabUrls = [`${match.url}/compilations`, `${match.url}/resources`, `${match.url}/workforces`, `${match.url}/machines`, `${match.url}/materials`]
     const tabIndex = tabUrls.indexOf(window.location.pathname);
 
     const [value, setValue] = React.useState(tabIndex === -1 ? 0 : tabIndex);
@@ -52,10 +53,12 @@ function DataView(props) {
                          onClick={() => props.history.push(tabUrls[0])}/>
                     <Tab label="Resources"
                          onClick={() => props.history.push(tabUrls[1])}/>
-                    <Tab label="Materials"
-                         onClick={() => props.history.push(tabUrls[2])}/>
                     <Tab label="Workforces"
+                         onClick={() => props.history.push(tabUrls[2])}/>
+                    <Tab label="Machines"
                          onClick={() => props.history.push(tabUrls[3])}/>
+                    <Tab label="Materials"
+                         onClick={() => props.history.push(tabUrls[4])}/>
                 </Tabs>
             </AppBar>
             <Switch>
@@ -65,11 +68,14 @@ function DataView(props) {
                 <Route path={`${match.path}/resources`}>
                     <ResourcesTable/>
                 </Route>
-                <Route path={`${match.path}/materials`}>
-                    <MaterialsTable/>
-                </Route>
                 <Route path={`${match.path}/workforces`}>
                     <WorkforcesTable/>
+                </Route>
+                <Route path={`${match.path}/machines`}>
+                    <MachinesTable/>
+                </Route>
+                <Route path={`${match.path}/materials`}>
+                    <MaterialsTable/>
                 </Route>
             </Switch>
         </div>

@@ -1,6 +1,6 @@
 import {Route, Switch, withRouter} from "react-router-dom";
 import React from "react";
-import DataView from "./DataView";
+import DataView from "./data/DataView";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import AppBar from "@material-ui/core/AppBar";
 import clsx from "clsx";
@@ -16,10 +16,12 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import OutlayForm from "./OutlayForm";
+import OutlayForm from "./outlay/OutlayForm";
 import {withStyles} from "@material-ui/core";
 import Button from "@material-ui/core/Button";
-import UserContext from "./UserContext";
+import UserContext from "../infrastructure/UserContext";
+import SaveAltIcon from '@material-ui/icons/SaveAlt';
+import DataImport from "./data-forms/DataImport";
 
 class Main extends React.Component {
 
@@ -79,6 +81,11 @@ class Main extends React.Component {
                     </div>
                     <Divider/>
                     <List>
+                        <ListItem button key={'Data Import'}
+                                  onClick={() => this.props.history.push(`${match.url}/data-import`)}>
+                            <ListItemIcon><SaveAltIcon/></ListItemIcon>
+                            <ListItemText primary={'Data Import'}/>
+                        </ListItem>
                         <ListItem button key={'Data View'}
                                   onClick={() => this.props.history.push(`${match.url}/data-view`)}>
                             <ListItemIcon><StorageIcon/></ListItemIcon>
@@ -95,6 +102,9 @@ class Main extends React.Component {
                     <div className={classes.toolbar}/>
 
                     <Switch>
+                        <Route path={`${match.path}/data-import`}>
+                            <DataImport/>
+                        </Route>
                         <Route path={`${match.path}/data-view`}>
                             <DataView/>
                         </Route>

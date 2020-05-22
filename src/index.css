@@ -11,3 +11,11 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.MuiTable-root {
+  background: #3fb5431f;
+}
+
+.MuiTableHead-root {
+  background: #fffb7fa6;
+}

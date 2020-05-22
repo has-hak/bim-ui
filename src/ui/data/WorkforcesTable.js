@@ -1,5 +1,5 @@
 import * as React from "react";
-import {BACKEND_URL} from "../Static";
+import {BACKEND_URL} from "../../Static";
 import TableContainer from "@material-ui/core/TableContainer";
 import Table from "@material-ui/core/Table";
 import {Paper} from "@material-ui/core";
@@ -8,8 +8,7 @@ import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import TableBody from "@material-ui/core/TableBody";
 import {makeStyles} from "@material-ui/styles";
-import './CompilationTable.css';
-import HttpClient from "./HttpClient";
+import HttpClient from "../../infrastructure/HttpClient";
 
 export default class WorkforcesTable extends React.Component {
 

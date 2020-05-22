@@ -1,9 +1,9 @@
 import {Route, Switch, withRouter} from "react-router-dom";
 import React from "react";
-import SignIn from "./SignIn";
-import Router from "./Router";
+import SignIn from "./sign/SignIn";
+import Router from "../infrastructure/Router";
 import Main from "./Main";
-import SignUp from "./SignUp";
+import SignUp from "./sign/SignUp";
 
 class App extends React.Component {
 

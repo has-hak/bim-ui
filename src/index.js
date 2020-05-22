@@ -4,7 +4,7 @@ import './index.css';
 import * as serviceWorker from './serviceWorker';
 import {BrowserRouter} from "react-router-dom";
 import * as axios from "axios";
-import App from "./component/App";
+import App from "./ui/App";
 
 axios.defaults.withCredentials = true;
 

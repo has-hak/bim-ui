@@ -1,5 +1,5 @@
 import * as React from "react";
-import {BACKEND_URL} from "../Static";
+import {BACKEND_URL} from "../../Static";
 import TableContainer from "@material-ui/core/TableContainer";
 import Table from "@material-ui/core/Table";
 import {Paper} from "@material-ui/core";
@@ -8,22 +8,21 @@ import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import TableBody from "@material-ui/core/TableBody";
 import {makeStyles} from "@material-ui/styles";
-import './CompilationTable.css';
-import HttpClient from "./HttpClient";
+import HttpClient from "../../infrastructure/HttpClient";
 
-export default class MaterialsTable extends React.Component {
+export default class CompilationTable extends React.Component {
 
     state = {
-        materials: []
+        compilations: []
     }
 
     componentDidMount() {
         HttpClient.doRequest(axios => {
-            return axios.get(`${BACKEND_URL}/api/materials`)
+            return axios.get(`${BACKEND_URL}/api/compilations`)
                 .then((response) => {
-                    this.setState({materials: response.data})
+                    this.setState({compilations: response.data})
                 })
-        });
+        })
     }
 
     render() {
@@ -39,22 +38,14 @@ export default class MaterialsTable extends React.Component {
                     <TableHead>
                         <TableRow>
                             <TableCell align="left">Id</TableCell>
-                            <TableCell align="left">Code</TableCell>
                             <TableCell align="left">Title</TableCell>
-                            <TableCell align="left">Unit</TableCell>
-                            <TableCell align="left">Unit cost</TableCell>
-                            <TableCell align="left">Measure type</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {this.state.materials.map((material) => (
-                            <TableRow key={material.id}>
-                                <TableCell align="left">{material.id}</TableCell>
-                                <TableCell align="left">{material.code}</TableCell>
-                                <TableCell align="left">{material.title}</TableCell>
-                                <TableCell align="left">{material.unit}</TableCell>
-                                <TableCell align="left">{material.unitCost}</TableCell>
-                                <TableCell align="left">{material.measureType}</TableCell>
+                        {this.state.compilations.map((compilation) => (
+                            <TableRow key={compilation.id}>
+                                <TableCell align="left">{compilation.id}</TableCell>
+                                <TableCell align="left">{compilation.title}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

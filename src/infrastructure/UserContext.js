@@ -6,6 +6,15 @@ const context = {
     signed: false
 }
 
+function register(data) {
+    axios.post(`${BACKEND_URL}/api/registration`, data).then(response => {
+        if (response.status === 200) {
+            context.signed = true;
+            window.location.href = Router.defaultRouting;
+        }
+    });
+}
+
 function login(credentials) {
     fetch(`${BACKEND_URL}/api/login`, {
         credentials: 'include',
@@ -30,6 +39,7 @@ function logout() {
         })
 }
 
+context.register = register
 context.login = login
 context.logout = logout
 

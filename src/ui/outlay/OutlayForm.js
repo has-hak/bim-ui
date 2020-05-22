@@ -1,11 +1,11 @@
 import * as React from "react";
 import {Fragment} from "react";
 import Button from "@material-ui/core/Button";
-import {BACKEND_URL} from "../Static";
+import {BACKEND_URL} from "../../Static";
 import PublishIcon from '@material-ui/icons/Publish';
 import OutlayTable from "./OutlayTable";
 import Divider from "@material-ui/core/Divider";
-import HttpClient from "./HttpClient";
+import HttpClient from "../../infrastructure/HttpClient";
 
 export default class OutlayForm extends React.Component {
 

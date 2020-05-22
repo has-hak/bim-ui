@@ -9,10 +9,9 @@ import Box from '@material-ui/core/Box';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
-import {BACKEND_URL} from "../Static";
 import {withStyles} from "@material-ui/core";
-import UserContext from "./UserContext";
-import Router from "./Router";
+import UserContext from "../../infrastructure/UserContext";
+import Router from "../../infrastructure/Router";
 import {withRouter} from "react-router-dom";
 
 class SignIn extends React.Component {
@@ -21,10 +20,6 @@ class SignIn extends React.Component {
         username: undefined,
         password: undefined
     };
-
-    constructor(props, context) {
-        super(props, context);
-    }
 
     render() {
         if (UserContext.signed) {
@@ -44,48 +39,46 @@ class SignIn extends React.Component {
                     <Typography component="h1" variant="h5">
                         Sign in
                     </Typography>
-                    <form className={classes.form} noValidate>
-                        <TextField
-                            variant="outlined"
-                            margin="normal"
-                            required
-                            fullWidth
-                            id="email"
-                            label="Email Address or Username"
-                            name="email"
-                            autoComplete="email"
-                            autoFocus
-                            onChange={event => this.formData.username = event.target.value}
-                        />
-                        <TextField
-                            variant="outlined"
-                            margin="normal"
-                            required
-                            fullWidth
-                            name="password"
-                            label="Password"
-                            type="password"
-                            id="password"
-                            autoComplete="current-password"
-                            onChange={event => this.formData.password = event.target.value}
-                        />
-                        <Button
-                            fullWidth
-                            variant="contained"
-                            color="primary"
-                            className={classes.submit}
-                            onClick={() => UserContext.login(this.formData)}
-                        >
-                            Sign In
-                        </Button>
-                        <Grid container>
-                            <Grid item>
-                                <Link href={Router.signUpRouting} variant="body2">
-                                    {"Don't have an account? Sign Up"}
-                                </Link>
-                            </Grid>
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="email"
+                        label="Email Address or Username"
+                        name="email"
+                        autoComplete="email"
+                        autoFocus
+                        onChange={event => this.formData.username = event.target.value}
+                    />
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        name="password"
+                        label="Password"
+                        type="password"
+                        id="password"
+                        autoComplete="current-password"
+                        onChange={event => this.formData.password = event.target.value}
+                    />
+                    <Button
+                        fullWidth
+                        variant="contained"
+                        color="primary"
+                        className={classes.submit}
+                        onClick={() => UserContext.login(this.formData)}
+                    >
+                        Sign In
+                    </Button>
+                    <Grid container>
+                        <Grid item>
+                            <Link href={Router.signUpRouting} variant="body2">
+                                {"Don't have an account? Sign Up"}
+                            </Link>
                         </Grid>
-                    </form>
+                    </Grid>
                 </div>
                 <Box mt={8}>
                     <Typography variant="body2" color="textSecondary" align="center">
