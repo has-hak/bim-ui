@@ -11,21 +11,44 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import {withStyles} from "@material-ui/core";
 import UserContext from "../../infrastructure/UserContext";
+import {getCurrentLanguage, getMessages} from "../../infrastructure/LanguagesSystem";
 import Router from "../../infrastructure/Router";
 import {withRouter} from "react-router-dom";
+import {Subject} from "rxjs";
+import {switchMap, takeUntil} from "rxjs/operators";
 
 class SignIn extends React.Component {
+
+    destroy = new Subject();
+
+    state = {
+        messages: {
+            "ui.sign-in": "Sign In"
+        }
+    }
 
     formData = {
         username: undefined,
         password: undefined
     };
 
+    componentDidMount() {
+        getCurrentLanguage().pipe(switchMap(currentLanguage => {
+            getMessages(["ui.sign-in"], currentLanguage.id);
+        })).pipe(takeUntil(this.destroy)).subscribe(messages => {
+            this.setState({messages: messages})
+        });
+    }
+
+    componentWillUnmount() {
+        this.destroy.next();
+        this.destroy.complete();
+    }
+
     render() {
         if (UserContext.signed) {
             return Router.redirectionToDefault();
         }
-
 
         const {classes} = this.props;
 
@@ -37,7 +60,7 @@ class SignIn extends React.Component {
                         <LockOutlinedIcon/>
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        Sign in
+                        {this.state.messages['ui.sign-in']}
                     </Typography>
                     <TextField
                         variant="outlined"
@@ -70,7 +93,7 @@ class SignIn extends React.Component {
                         className={classes.submit}
                         onClick={() => UserContext.login(this.formData)}
                     >
-                        Sign In
+                        {this.state.messages['ui.sign-in']}
                     </Button>
                     <Grid container>
                         <Grid item>

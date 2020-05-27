@@ -13,14 +13,33 @@ import {withRouter} from "react-router-dom";
 import {withStyles} from "@material-ui/core";
 import Router from "../../infrastructure/Router";
 import UserContext from "../../infrastructure/UserContext";
+import {getCurrentLanguage, getMessages} from "../../infrastructure/LanguagesSystem";
+import {switchMap, takeUntil} from "rxjs/operators";
+import {Subject} from "rxjs";
 
 class SignUp extends React.Component {
+
+    destroy = new Subject();
+
+    state = {
+        messages: {
+            "ui.sign-up": "Sign Up"
+        }
+    }
 
     formData = {
         fullName: undefined,
         email: undefined,
         password: undefined
     };
+
+    componentDidMount() {
+        getCurrentLanguage().pipe(switchMap(currentLanguage => {
+            getMessages(["ui.sign-up"], currentLanguage.id);
+        })).pipe(takeUntil(this.destroy)).subscribe(messages => {
+            this.setState({messages: messages})
+        });
+    }
 
     render() {
         const {classes} = this.props;
@@ -33,7 +52,7 @@ class SignUp extends React.Component {
                         <AssignmentIndIcon/>
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        Sign up
+                        {this.state.messages['ui.sign-up']}
                     </Typography>
                     <TextField
                         variant="outlined"
@@ -78,7 +97,7 @@ class SignUp extends React.Component {
                         className={classes.submit}
                         onClick={() => UserContext.register(this.formData)}
                     >
-                        Sign Up
+                        {this.state.messages['ui.sign-up']}
                     </Button>
                     <Grid container>
                         <Grid item>

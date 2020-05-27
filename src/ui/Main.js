@@ -22,11 +22,35 @@ import Button from "@material-ui/core/Button";
 import UserContext from "../infrastructure/UserContext";
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
 import DataImport from "./data-forms/DataImport";
+import {Subject} from "rxjs";
+import {getCurrentLanguage, getMessages} from "../infrastructure/LanguagesSystem";
+import {takeUntil} from "rxjs/operators";
 
 class Main extends React.Component {
 
+    destroy = new Subject();
+
     state = {
-        drawerOpen: true
+        drawerOpen: true,
+        messages: {
+            "logout": "Logout",
+            "ui.main.data-view": "Data View",
+            "ui.main.outlay-calculation": "Outlay calculation"
+        }
+    }
+
+
+    componentDidMount() {
+        getCurrentLanguage().pipe(takeUntil(this.destroy)).subscribe(currentLanguage => {
+            getMessages(["ui.logout", "ui.main.data-view", "ui.main.outlay-calculation"], currentLanguage.id).pipe(takeUntil(this.destroy)).subscribe(messages => {
+                this.setState({messages: messages})
+            });
+        });
+    }
+
+    componentWillUnmount() {
+        this.destroy.next();
+        this.destroy.complete();
     }
 
     render() {
@@ -56,7 +80,7 @@ class Main extends React.Component {
                         <div>
                             <Button aria-controls="simple-menu" aria-haspopup="true" variant="contained"
                                     color="secondary" onClick={UserContext.logout}>
-                                Logout
+                                {this.state.messages['ui.logout']}
                             </Button>
                         </div>
                     </Toolbar>
@@ -86,15 +110,15 @@ class Main extends React.Component {
                             <ListItemIcon><SaveAltIcon/></ListItemIcon>
                             <ListItemText primary={'Data Import'}/>
                         </ListItem>
-                        <ListItem button key={'Data View'}
+                        <ListItem button key={this.state.messages['data-view']}
                                   onClick={() => this.props.history.push(`${match.url}/data-view`)}>
                             <ListItemIcon><StorageIcon/></ListItemIcon>
-                            <ListItemText primary={'Data View'}/>
+                            <ListItemText primary={this.state.messages['ui.main.data-view']}/>
                         </ListItem>
-                        <ListItem button key={'Outlay Calculation'}
+                        <ListItem button key={this.state.messages['outlay-calculation']}
                                   onClick={() => this.props.history.push(`${match.url}/outlay-form`)}>
                             <ListItemIcon><DescriptionIcon/></ListItemIcon>
-                            <ListItemText primary={'Outlay Calculation'}/>
+                            <ListItemText primary={this.state.messages['ui.main.outlay-calculation']}/>
                         </ListItem>
                     </List>
                 </Drawer>

@@ -9,8 +9,7 @@ const context = {
 function register(data) {
     axios.post(`${BACKEND_URL}/api/registration`, data).then(response => {
         if (response.status === 200) {
-            context.signed = true;
-            window.location.href = Router.defaultRouting;
+            window.location.href = Router.signInRouting;
         }
     });
 }

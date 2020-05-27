@@ -6,12 +6,32 @@ import PublishIcon from '@material-ui/icons/Publish';
 import OutlayTable from "./OutlayTable";
 import Divider from "@material-ui/core/Divider";
 import HttpClient from "../../infrastructure/HttpClient";
+import {Subject} from "rxjs";
+import {getCurrentLanguage, getMessages} from "../../infrastructure/LanguagesSystem";
+import {switchMap, takeUntil} from "rxjs/operators";
 
 export default class OutlayForm extends React.Component {
 
+    destroy = new Subject();
+
     state = {
         selectedFile: null,
-        outlayData: null
+        outlayData: null,
+        messages: {}
+    }
+
+
+    componentDidMount() {
+        getCurrentLanguage().pipe(switchMap(currentLanguage => {
+            return getMessages(['ui.main.outlay-calculation.select-document', 'ui.main.outlay-calculation.select-file', 'ui.main.outlay-calculation.not-selected'], currentLanguage.id)
+        })).pipe(takeUntil(this.destroy)).subscribe(messages => {
+            this.setState({messages: messages})
+        });
+    }
+
+    componentWillUnmount() {
+        this.destroy.next();
+        this.destroy.complete();
     }
 
     onFileSelect(event) {
@@ -36,7 +56,7 @@ export default class OutlayForm extends React.Component {
                     style={{display: 'none',}}
                 />
                 <label htmlFor="icon-button-file">
-                   Select document
+                    {this.state.messages['ui.main.outlay-calculation.select-document']}
                     {'        '}
                     <Button
                         variant="contained"
@@ -44,10 +64,10 @@ export default class OutlayForm extends React.Component {
                         size="small"
                         color="primary"
                     >
-                        Select File
+                        {this.state.messages['ui.main.outlay-calculation.select-file']}
                     </Button>
                     {'       '}
-                    {this.state.selectedFile ? this.state.selectedFile.name : "Not Selected"}
+                    {this.state.selectedFile ? this.state.selectedFile.name : this.state.messages['ui.main.outlay-calculation.not-selected']}
                 </label>
                 {'      '}
                 <Button variant="contained" color="primary" onClick={this.upload.bind(this)}>

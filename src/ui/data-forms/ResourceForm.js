@@ -12,17 +12,26 @@ import HttpClient from "../../infrastructure/HttpClient";
 import {BACKEND_URL} from "../../Static";
 import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
+import Input from "@material-ui/core/Input";
+import Chip from "@material-ui/core/Chip";
+import InputLabel from "@material-ui/core/InputLabel";
 
 class ResourceForm extends React.Component {
 
     state = {
         compilations: [],
+        workforces: [],
+        machines: [],
+        materials: [],
+        selectedWorkforces: [],
+        selectedMachines: [],
+        selectedMaterials: [],
     };
 
-    requestForm =  {
+    requestForm = {
         compilationId: null,
         code: null,
-        title: null
+        title: null,
     }
 
     componentDidMount() {
@@ -32,9 +41,38 @@ class ResourceForm extends React.Component {
                     this.setState({compilations: response.data})
                 })
         })
+        HttpClient.doRequest(axios => {
+            return axios.get(`${BACKEND_URL}/api/workforces`)
+                .then((response) => {
+                    this.setState({workforces: response.data})
+                })
+        })
+        HttpClient.doRequest(axios => {
+            return axios.get(`${BACKEND_URL}/api/machines`)
+                .then((response) => {
+                    this.setState({machines: response.data})
+                })
+        })
+        HttpClient.doRequest(axios => {
+            return axios.get(`${BACKEND_URL}/api/materials`)
+                .then((response) => {
+                    this.setState({materials: response.data})
+                })
+        })
     }
 
     render() {
+        const ITEM_HEIGHT = 48;
+        const ITEM_PADDING_TOP = 8;
+        const MenuProps = {
+            PaperProps: {
+                style: {
+                    maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+                    width: 250,
+                },
+            },
+        };
+
         const {classes} = this.props;
 
         return (
@@ -47,6 +85,7 @@ class ResourceForm extends React.Component {
                     <Typography component="h1" variant="h5">
                         Create new resource
                     </Typography>
+                    <InputLabel>Compilation</InputLabel>
                     <Select
                         variant="outlined"
                         required
@@ -58,7 +97,7 @@ class ResourceForm extends React.Component {
                             Compilation
                         </MenuItem>
                         {this.state.compilations.map(compilation => (
-                            <MenuItem value={compilation}>{compilation.title}</MenuItem>))}
+                            <MenuItem key={compilation.id} value={compilation}>{compilation.title}</MenuItem>))}
                     </Select>
                     <TextField
                         variant="outlined"
@@ -78,6 +117,70 @@ class ResourceForm extends React.Component {
                         autoFocus
                         onChange={event => this.requestForm.title = event.target.value}
                     />
+                    <InputLabel>Workforce</InputLabel>
+                    <Select
+                        style={{width: 400}}
+                        multiple
+                        value={this.state.selectedWorkforces}
+                        onChange={(event) => this.setState({selectedWorkforces: event.target.value})}
+                        input={<Input id="select-multiple-chip"/>}
+                        renderValue={(selected) => (
+                            <div className={classes.chips}>
+                                {selected.map((workforce) => (
+                                    <Chip key={workforce.id} label={workforce.title} className={classes.chip}/>
+                                ))}
+                            </div>
+                        )}
+                        MenuProps={MenuProps}
+                    >
+                        {this.state.workforces.map((workforce) => (
+                            <MenuItem key={workforce.id} value={workforce}>
+                                {workforce.title}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                    <Select
+                        style={{width: 400}}
+                        multiple
+                        value={this.state.selectedMachines}
+                        onChange={(event) => this.setState({selectedMachines: event.target.value})}
+                        input={<Input id="select-multiple-chip"/>}
+                        renderValue={(selected) => (
+                            <div className={classes.chips}>
+                                {selected.map((machine) => (
+                                    <Chip key={machine.id} label={machine.title} className={classes.chip}/>
+                                ))}
+                            </div>
+                        )}
+                        MenuProps={MenuProps}
+                    >
+                        {this.state.machines.map((machine) => (
+                            <MenuItem key={machine.id} value={machine}>
+                                {machine.title}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                    <Select
+                        style={{width: 400}}
+                        multiple
+                        value={this.state.selectedMaterials}
+                        onChange={(event) => this.setState({selectedMaterials: event.target.value})}
+                        input={<Input id="select-multiple-chip"/>}
+                        renderValue={(selected) => (
+                            <div className={classes.chips}>
+                                {selected.map((material) => (
+                                    <Chip key={material.id} label={material.title} className={classes.chip}/>
+                                ))}
+                            </div>
+                        )}
+                        MenuProps={MenuProps}
+                    >
+                        {this.state.materials.map((material) => (
+                            <MenuItem key={material.id} value={material}>
+                                {material.title}
+                            </MenuItem>
+                        ))}
+                    </Select>
                     <Button
                         fullWidth
                         variant="contained"
@@ -93,8 +196,15 @@ class ResourceForm extends React.Component {
     }
 
     createCompilation() {
+        const body = {
+            ...this.requestForm,
+            workforceIds: this.state.workforces.map(value => value.id),
+            machineIds: this.state.machines.map(value => value.id),
+            materialIds: this.state.materials.map(value => value.id),
+        };
+
         HttpClient.doRequest(axios => {
-            return axios.post(`${BACKEND_URL}/api/resources`, this.requestForm, {})
+            return axios.post(`${BACKEND_URL}/api/resources`, body, {})
         })
     }
 }
@@ -112,6 +222,13 @@ const useStyles = (theme) => ({
     },
     submit: {
         margin: theme.spacing(3, 0, 2),
+    },
+    chips: {
+        display: 'flex',
+        flexWrap: 'wrap',
+    },
+    chip: {
+        margin: 2,
     },
 });
 

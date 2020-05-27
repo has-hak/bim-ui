@@ -6,7 +6,6 @@ import {withStyles} from "@material-ui/core";
 import {withRouter} from "react-router-dom";
 import HttpClient from "../../infrastructure/HttpClient";
 import {BACKEND_URL} from "../../Static";
-import ListItem from "@material-ui/core/ListItem";
 
 class Menu extends React.Component {
 
