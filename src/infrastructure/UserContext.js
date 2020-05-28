@@ -1,6 +1,6 @@
 import {BACKEND_URL} from "../Static";
 import * as axios from "axios";
-import Router from "./Router";
+import {defaultRouting, signInRouting} from "./Router";
 
 const context = {
     signed: false
@@ -9,7 +9,7 @@ const context = {
 function register(data) {
     axios.post(`${BACKEND_URL}/api/registration`, data).then(response => {
         if (response.status === 200) {
-            window.location.href = Router.signInRouting;
+            window.location.href = signInRouting;
         }
     });
 }
@@ -23,7 +23,7 @@ function login(credentials) {
     }).then(response => {
         if (response.status === 200) {
             context.signed = true;
-            window.location.href = Router.defaultRouting;
+            window.location.href = defaultRouting;
         }
     });
 }
@@ -34,7 +34,7 @@ function logout() {
         })
         .then(() => {
             context.signed = false;
-            window.location.href = Router.signInRouting;
+            window.location.href = signInRouting;
         })
 }
 

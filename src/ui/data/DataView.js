@@ -8,49 +8,67 @@ import ResourcesTable from "./ResourcesTable";
 import MaterialsTable from "./MaterialsTable";
 import WorkforcesTable from "./WorkforcesTable";
 import MachinesTable from "./MachinesTable";
-import {getCurrentLanguage, getMessages} from "../../infrastructure/LanguagesSystem";
-import {switchMap, takeUntil} from "rxjs/operators";
-import {Subject} from "rxjs";
 import {withStyles} from "@material-ui/core";
+import Button from "@material-ui/core/Button";
+import {dataImportRouting} from "../../infrastructure/Router";
+import {getMessages} from "../../infrastructure/LanguagesSystem";
 
 const useStyles = (theme) => ({
-    root: {
-        flexGrow: 1,
-        width: '100%',
-        backgroundColor: theme.palette.background.paper,
-    },
-});
+        root: {
+            flexGrow: 1,
+            width: '100%',
+            backgroundColor: theme.palette.background.paper,
+        },
+        addButton: {
+            position: 'absolute',
+            right: 5,
+            top: 5,
+            width: 125,
+            'text-transform': 'none'
+        }
+    });
 
 class DataView extends React.Component {
 
-    destroy = new Subject();
+    messagesSubscription;
 
     state = {
         messages: {}
     }
 
     componentDidMount() {
-        getCurrentLanguage().pipe(switchMap(currentLanguage => {
-            return getMessages(["compilations", 'resources', 'workforces', 'machines', 'materials'], currentLanguage.id)
-        })).pipe(takeUntil(this.destroy)).subscribe(messages => {
+        this.messagesSubscription = getMessages().subscribe(messages => {
             this.setState({messages: messages})
         });
     }
 
     componentWillUnmount() {
-        this.destroy.next();
-        this.destroy.complete();
+        this.messagesSubscription.unsubscribe();
+    }
+
+    addNew() {
+        const props = this.props;
+        const {match} = props;
+
+        const tabs = ["compilations", 'resources', 'workforces', 'machines', 'materials']
+
+        const tabIndex = this.getCurrentTabIndex(match.url);
+        if (tabIndex === -1) {
+            throw new Error("Illegal State");
+        }
+
+        props.history.push(`${dataImportRouting}/${tabs[tabIndex]}`);
     }
 
     render() {
         const props = this.props;
         const {classes, match} = props;
 
-        const tabUrls = [`${match.url}/compilations`, `${match.url}/resources`, `${match.url}/workforces`, `${match.url}/machines`, `${match.url}/materials`]
+        const tabUrls = this.buildTabUrls(match.url)
         const tabIndex = tabUrls.indexOf(window.location.pathname);
 
         if (tabIndex === -1) {
-            return (<Redirect to={tabUrls[0]}/>);
+            return (<Redirect to={`${match.url}/compilations`}/>);
         }
 
         return (
@@ -74,6 +92,8 @@ class DataView extends React.Component {
                              onClick={() => props.history.push(tabUrls[3])}/>
                         <Tab label={this.state.messages['materials']}
                              onClick={() => props.history.push(tabUrls[4])}/>
+                        <Button variant={"contained"} color={"primary"} className={classes.addButton}
+                                onClick={this.addNew.bind(this)}>{this.state.messages['ui.main.data-view.add-new']}</Button>
                     </Tabs>
                 </AppBar>
                 <Switch>
@@ -95,6 +115,15 @@ class DataView extends React.Component {
                 </Switch>
             </div>
         );
+    }
+
+    getCurrentTabIndex(parentUrl) {
+        const tabUrls = this.buildTabUrls(parentUrl);
+        return tabUrls.indexOf(window.location.pathname);
+    }
+
+    buildTabUrls(parentUrl) {
+        return [`${parentUrl}/compilations`, `${parentUrl}/resources`, `${parentUrl}/workforces`, `${parentUrl}/machines`, `${parentUrl}/materials`];
     }
 }
 

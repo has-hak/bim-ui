@@ -10,14 +10,31 @@ import {withStyles} from "@material-ui/core";
 import {withRouter} from "react-router-dom";
 import HttpClient from "../../infrastructure/HttpClient";
 import {BACKEND_URL} from "../../Static";
+import {getMessages} from "../../infrastructure/LanguagesSystem";
 
 class WorkforceForm extends React.Component {
+
+    messagesSubscription;
+
+    state = {
+        messages: {}
+    }
 
     requestForm = {
         code: null,
         title: null,
         unit: null,
         unitCost: null,
+    }
+
+    componentDidMount() {
+        this.messagesSubscription = getMessages().subscribe(messages => {
+            this.setState({messages: messages})
+        });
+    }
+
+    componentWillUnmount() {
+        this.messagesSubscription.unsubscribe();
     }
 
     render() {
@@ -31,14 +48,14 @@ class WorkforceForm extends React.Component {
                         <LibraryBooksIcon/>
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        Create new workforce
+                        {this.state.messages['ui.forms.workforce.create']}
                     </Typography>
                     <TextField
                         variant="outlined"
                         margin="normal"
                         required
                         fullWidth
-                        label="Code"
+                        label={this.state.messages['fields.code']}
                         autoFocus
                         onChange={event => this.requestForm.code = event.target.value}
                     />
@@ -47,7 +64,7 @@ class WorkforceForm extends React.Component {
                         margin="normal"
                         required
                         fullWidth
-                        label="Title"
+                        label={this.state.messages['fields.title']}
                         autoFocus
                         onChange={event => this.requestForm.title = event.target.value}
                     />
@@ -57,7 +74,7 @@ class WorkforceForm extends React.Component {
                         required
                         fullWidth
                         type="number"
-                        label="Unit"
+                        label={this.state.messages['fields.unit']}
                         autoFocus
                         onChange={event => this.requestForm.unit = event.target.value}
                     />
@@ -67,7 +84,7 @@ class WorkforceForm extends React.Component {
                         required
                         fullWidth
                         type="number"
-                        label="Unit cost"
+                        label={this.state.messages['fields.unit-cost']}
                         autoFocus
                         onChange={event => this.requestForm.unitCost = event.target.value}
                     />
@@ -78,7 +95,7 @@ class WorkforceForm extends React.Component {
                         className={classes.submit}
                         onClick={this.createCompilation.bind(this)}
                     >
-                        Create
+                        {this.state.messages['ui.create']}
                     </Button>
                 </div>
             </Container>

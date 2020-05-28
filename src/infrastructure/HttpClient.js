@@ -1,6 +1,6 @@
 import * as axios from "axios";
-import Router from "./Router";
 import UserContext from "./UserContext";
+import {signInRouting} from "./Router";
 
 function doRequest(requestCallback) {
     const requestPromise = requestCallback(axios)
@@ -13,7 +13,7 @@ function doRequest(requestCallback) {
         if (error.response) {
             if (error.response.status === 401) {
                 UserContext.signed = false;
-                window.location.href = Router.signInRouting;
+                window.location.href = signInRouting;
             }
         }
         console.log(error);

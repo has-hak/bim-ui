@@ -6,13 +6,9 @@ import PublishIcon from '@material-ui/icons/Publish';
 import OutlayTable from "./OutlayTable";
 import Divider from "@material-ui/core/Divider";
 import HttpClient from "../../infrastructure/HttpClient";
-import {Subject} from "rxjs";
-import {getCurrentLanguage, getMessages} from "../../infrastructure/LanguagesSystem";
-import {switchMap, takeUntil} from "rxjs/operators";
+import {getMessages} from "../../infrastructure/LanguagesSystem";
 
 export default class OutlayForm extends React.Component {
-
-    destroy = new Subject();
 
     state = {
         selectedFile: null,
@@ -20,18 +16,14 @@ export default class OutlayForm extends React.Component {
         messages: {}
     }
 
-
     componentDidMount() {
-        getCurrentLanguage().pipe(switchMap(currentLanguage => {
-            return getMessages(['ui.main.outlay-calculation.select-document', 'ui.main.outlay-calculation.select-file', 'ui.main.outlay-calculation.not-selected'], currentLanguage.id)
-        })).pipe(takeUntil(this.destroy)).subscribe(messages => {
+        this.messagesSubscription = getMessages().subscribe(messages => {
             this.setState({messages: messages})
         });
     }
 
     componentWillUnmount() {
-        this.destroy.next();
-        this.destroy.complete();
+        this.messagesSubscription.unsubscribe();
     }
 
     onFileSelect(event) {

@@ -1,11 +1,10 @@
 import React from 'react';
-import {Route, Switch, withRouter} from "react-router-dom";
+import {Redirect, Route, Switch, withRouter} from "react-router-dom";
 import CompilationForm from "./CompilationForm";
 import ResourceForm from "./ResourceForm";
 import WorkforceForm from "./WorkforceForm";
 import MachineForm from "./MachineForm";
 import MaterialForm from "./MaterialForm";
-import Menu from "./Menu";
 
 function DataImport(props) {
     const match = props.match;
@@ -13,7 +12,7 @@ function DataImport(props) {
     return (
         <Switch>
             <Route path={`${match.path}`} exact={true}>
-                <Menu/>
+                <Redirect to={`${match.path}/compilations`}/>;
             </Route>
             <Route path={`${match.path}/compilations`}>
                 <CompilationForm/>

@@ -11,15 +11,13 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import {withStyles} from "@material-ui/core";
 import UserContext from "../../infrastructure/UserContext";
-import {getCurrentLanguage, getMessages} from "../../infrastructure/LanguagesSystem";
-import Router from "../../infrastructure/Router";
 import {withRouter} from "react-router-dom";
-import {Subject} from "rxjs";
-import {switchMap, takeUntil} from "rxjs/operators";
+import {redirectionToDefault, signUpRouting} from "../../infrastructure/Router";
+import {getMessages} from "../../infrastructure/LanguagesSystem";
 
 class SignIn extends React.Component {
 
-    destroy = new Subject();
+    messagesSubscription;
 
     state = {
         messages: {
@@ -28,26 +26,22 @@ class SignIn extends React.Component {
     }
 
     formData = {
-        username: undefined,
-        password: undefined
+        username: null,
+        password: null
     };
 
     componentDidMount() {
-        getCurrentLanguage().pipe(switchMap(currentLanguage => {
-            getMessages(["ui.sign-in"], currentLanguage.id);
-        })).pipe(takeUntil(this.destroy)).subscribe(messages => {
+        this.messagesSubscription = getMessages().subscribe(messages => {
             this.setState({messages: messages})
-        });
-    }
+        }); }
 
     componentWillUnmount() {
-        this.destroy.next();
-        this.destroy.complete();
+        this.messagesSubscription.unsubscribe();
     }
 
     render() {
         if (UserContext.signed) {
-            return Router.redirectionToDefault();
+            return redirectionToDefault();
         }
 
         const {classes} = this.props;
@@ -97,7 +91,7 @@ class SignIn extends React.Component {
                     </Button>
                     <Grid container>
                         <Grid item>
-                            <Link href={Router.signUpRouting} variant="body2">
+                            <Link href={signUpRouting} variant="body2">
                                 {"Don't have an account? Sign Up"}
                             </Link>
                         </Grid>

@@ -21,10 +21,10 @@ import {withStyles} from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import UserContext from "../infrastructure/UserContext";
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
-import DataImport from "./data-forms/DataImport";
 import {Subject} from "rxjs";
 import {getCurrentLanguage, getMessages} from "../infrastructure/LanguagesSystem";
 import {takeUntil} from "rxjs/operators";
+import DataImport from "./data-forms/DataImport";
 
 class Main extends React.Component {
 
@@ -105,11 +105,6 @@ class Main extends React.Component {
                     </div>
                     <Divider/>
                     <List>
-                        <ListItem button key={'Data Import'}
-                                  onClick={() => this.props.history.push(`${match.url}/data-import`)}>
-                            <ListItemIcon><SaveAltIcon/></ListItemIcon>
-                            <ListItemText primary={'Data Import'}/>
-                        </ListItem>
                         <ListItem button key={this.state.messages['data-view']}
                                   onClick={() => this.props.history.push(`${match.url}/data-view`)}>
                             <ListItemIcon><StorageIcon/></ListItemIcon>

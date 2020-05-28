@@ -11,15 +11,13 @@ import Link from "@material-ui/core/Link";
 import Box from "@material-ui/core/Box";
 import {withRouter} from "react-router-dom";
 import {withStyles} from "@material-ui/core";
-import Router from "../../infrastructure/Router";
 import UserContext from "../../infrastructure/UserContext";
-import {getCurrentLanguage, getMessages} from "../../infrastructure/LanguagesSystem";
-import {switchMap, takeUntil} from "rxjs/operators";
-import {Subject} from "rxjs";
+import {signInRouting} from "../../infrastructure/Router";
+import {getMessages} from "../../infrastructure/LanguagesSystem";
 
 class SignUp extends React.Component {
 
-    destroy = new Subject();
+    messagesSubscription ;
 
     state = {
         messages: {
@@ -34,11 +32,13 @@ class SignUp extends React.Component {
     };
 
     componentDidMount() {
-        getCurrentLanguage().pipe(switchMap(currentLanguage => {
-            getMessages(["ui.sign-up"], currentLanguage.id);
-        })).pipe(takeUntil(this.destroy)).subscribe(messages => {
+        this.messagesSubscription = getMessages().subscribe(messages => {
             this.setState({messages: messages})
         });
+    }
+
+    componentWillUnmount() {
+       this.messagesSubscription.unsubscribe();
     }
 
     render() {
@@ -101,7 +101,7 @@ class SignUp extends React.Component {
                     </Button>
                     <Grid container>
                         <Grid item>
-                            <Link href={Router.signInRouting} variant="body2">
+                            <Link href={signInRouting} variant="body2">
                                 {"Already have an account? Sign in"}
                             </Link>
                         </Grid>

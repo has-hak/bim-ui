@@ -13,6 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import {getMessages} from "../../infrastructure/LanguagesSystem";
 
 const useRowStyles = makeStyles({
     root: {
@@ -23,7 +24,7 @@ const useRowStyles = makeStyles({
 });
 
 function ResourceRow(props) {
-    const {resource, totalStatistics} = props;
+    const {resource, totalStatistics, messages} = props;
     const [open, setOpen] = React.useState(false);
     const [workforcesOpen, setWorkforcesOpen] = React.useState(false);
     const [machinesOpen, setMachinesOpen] = React.useState(false);
@@ -46,7 +47,7 @@ function ResourceRow(props) {
                     <Collapse in={open} timeout="auto" unmountOnExit>
                         <Box margin={1}>
                             <Typography variant="h6" gutterBottom component="div">
-                                Պահանջներ
+                                {messages['ui.main.outlay-table.structure']}
                             </Typography>
                             <Table size="small" aria-label="purchases">
                                 <TableBody>
@@ -56,7 +57,7 @@ function ResourceRow(props) {
                                             <IconButton aria-label="expand row" size="small">
                                                 {workforcesOpen ? <KeyboardArrowUpIcon/> : <KeyboardArrowDownIcon/>}
                                             </IconButton>
-                                            Աշխատուժ
+                                            {messages['workforces']}
                                         </TableCell>
                                     </TableRow>
 
@@ -67,12 +68,18 @@ function ResourceRow(props) {
                                                     <Table aria-label="collapsible table">
                                                         <TableHead>
                                                             <TableRow>
-                                                                <TableCell align="left">Ծածկագիր</TableCell>
-                                                                <TableCell align="left">Անվանում</TableCell>
-                                                                <TableCell align="left">Չ․մ․</TableCell>
-                                                                <TableCell align="left">Ծավալը</TableCell>
-                                                                <TableCell align="left">Միավոր արժեքը</TableCell>
-                                                                <TableCell align="left">Ընդհանուր արժեքը</TableCell>
+                                                                <TableCell
+                                                                    align="left"> {messages['fields.code']}</TableCell>
+                                                                <TableCell
+                                                                    align="left">{messages['fields.title']}</TableCell>
+                                                                <TableCell
+                                                                    align="left">{messages['fields.measure-type']}</TableCell>
+                                                                <TableCell
+                                                                    align="left">{messages['measure-types.VOLUME']}</TableCell>
+                                                                <TableCell
+                                                                    align="left">{messages['fields.unit-cost']}</TableCell>
+                                                                <TableCell
+                                                                    align="left">{messages['ui.main.outlay-table.total-cost']}</TableCell>
                                                             </TableRow>
                                                         </TableHead>
                                                         <TableBody>
@@ -92,7 +99,7 @@ function ResourceRow(props) {
                                             <IconButton aria-label="expand row" size="small">
                                                 {machinesOpen ? <KeyboardArrowUpIcon/> : <KeyboardArrowDownIcon/>}
                                             </IconButton>
-                                            Մեքենա/մեխանիզմներ
+                                            {messages['ui.main.outlay-table.machine/mechanisms']}
                                         </TableCell>
                                     </TableRow>
 
@@ -103,12 +110,18 @@ function ResourceRow(props) {
                                                     <Table aria-label="collapsible table">
                                                         <TableHead>
                                                             <TableRow>
-                                                                <TableCell align="left">Ծածկագիր</TableCell>
-                                                                <TableCell align="left">Անվանում</TableCell>
-                                                                <TableCell align="left">Չ․մ․</TableCell>
-                                                                <TableCell align="left">Ծավալը</TableCell>
-                                                                <TableCell align="left">Միավոր արժեքը</TableCell>
-                                                                <TableCell align="left">Ընդհանուր արժեքը</TableCell>
+                                                                <TableCell
+                                                                    align="left"> {messages['fields.code']}</TableCell>
+                                                                <TableCell
+                                                                    align="left">{messages['fields.title']}</TableCell>
+                                                                <TableCell
+                                                                    align="left">{messages['fields.measure-type']}</TableCell>
+                                                                <TableCell
+                                                                    align="left">{messages['measure-types.VOLUME']}</TableCell>
+                                                                <TableCell
+                                                                    align="left">{messages['fields.unit-cost']}</TableCell>
+                                                                <TableCell
+                                                                    align="left">{messages['ui.main.outlay-table.total-cost']}</TableCell>
                                                             </TableRow>
                                                         </TableHead>
                                                         <TableBody>
@@ -127,7 +140,7 @@ function ResourceRow(props) {
                                             <IconButton aria-label="expand row" size="small">
                                                 {materialsOpen ? <KeyboardArrowUpIcon/> : <KeyboardArrowDownIcon/>}
                                             </IconButton>
-                                            Նյութեր
+                                            {messages['materials']}
                                         </TableCell>
                                     </TableRow>
 
@@ -138,12 +151,18 @@ function ResourceRow(props) {
                                                     <Table aria-label="collapsible table">
                                                         <TableHead>
                                                             <TableRow>
-                                                                <TableCell align="left">Ծածկագիր</TableCell>
-                                                                <TableCell align="left">Անվանում</TableCell>
-                                                                <TableCell align="left">Չ․մ․</TableCell>
-                                                                <TableCell align="left">Ծավալը</TableCell>
-                                                                <TableCell align="left">Միավոր արժեքը</TableCell>
-                                                                <TableCell align="left">Ընդհանուր արժեքը</TableCell>
+                                                                <TableCell
+                                                                    align="left"> {messages['fields.code']}</TableCell>
+                                                                <TableCell
+                                                                    align="left">{messages['fields.title']}</TableCell>
+                                                                <TableCell
+                                                                    align="left">{messages['fields.measure-type']}</TableCell>
+                                                                <TableCell
+                                                                    align="left">{messages['measure-types.VOLUME']}</TableCell>
+                                                                <TableCell
+                                                                    align="left">{messages['fields.unit-cost']}</TableCell>
+                                                                <TableCell
+                                                                    align="left">{messages['ui.main.outlay-table.total-cost']}</TableCell>
                                                             </TableRow>
                                                         </TableHead>
                                                         <TableBody>
@@ -162,7 +181,7 @@ function ResourceRow(props) {
                                             <IconButton aria-label="expand row" size="small">
                                                 {totalOpen ? <KeyboardArrowUpIcon/> : <KeyboardArrowDownIcon/>}
                                             </IconButton>
-                                            Ընդհանուր ծախսեր
+                                            {messages['ui.main.outlay-table.overall-cost']}
                                         </TableCell>
                                     </TableRow>
 
@@ -173,14 +192,18 @@ function ResourceRow(props) {
                                                     <Table aria-label="collapsible table">
                                                         <TableHead>
                                                             <TableRow>
-                                                                <TableCell align="left">Ընդամենը ուղղակի
-                                                                    ծախսեր</TableCell>
-                                                                <TableCell align="left">Վերադիր ծախսեր 13.3
+                                                                <TableCell
+                                                                    align="left">   {messages['ui.main.outlay-table.direct-cost']}  </TableCell>
+                                                                <TableCell
+                                                                    align="left">{messages['ui.main.outlay-table.overhead-cost']} 13.3
                                                                     %</TableCell>
-                                                                <TableCell align="left">Ինքնարժեք</TableCell>
-                                                                <TableCell align="left">Շահույթ 10.0 %</TableCell>
-                                                                <TableCell align="left">Ընդամենը նախահաշվային
-                                                                    արժեք</TableCell>
+                                                                <TableCell
+                                                                    align="left">{messages['ui.main.outlay-table.net-cost']}</TableCell>
+                                                                <TableCell
+                                                                    align="left">{messages['ui.main.outlay-table.profit']} 10.0
+                                                                    %</TableCell>
+                                                                <TableCell
+                                                                    align="left">{messages['ui.main.outlay-table.outlay-cost']}</TableCell>
                                                             </TableRow>
                                                         </TableHead>
                                                         <TableBody>
@@ -267,32 +290,49 @@ function MaterialRow(props) {
     );
 }
 
-export default function OutlayTable(props) {
-    const data = props.data
-    if (!data) {
+export default class OutlayTable extends React.Component {
+
+    state = {
+        messages: {}
+    }
+
+    componentDidMount() {
+        this.messagesSubscription = getMessages().subscribe(messages => {
+            this.setState({messages: messages})
+        });
+    }
+
+    componentWillUnmount() {
+        this.messagesSubscription.unsubscribe();
+    }
+
+    render() {
+        const data = this.props.data;
+        if (!data) {
+            return (
+                <div></div>
+            );
+        }
+
         return (
-            <div></div>
+            <TableContainer component={Paper}>
+                <Table aria-label="collapsible table">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>{this.state.messages['fields.title']}</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {data.resources.map((resource) => (
+                            <ResourceRow messages={this.state.messages} key={resource.id} resource={resource}
+                                         totalStatistics={calculateResourceTotalStatistics(resource)}/>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
         );
     }
-    return (
-        <TableContainer component={Paper}>
-            <Table aria-label="collapsible table">
-                <TableHead>
-                    <TableRow>
-                        <TableCell>Անվանում</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {data.resources.map((resource) => (
-                        <ResourceRow key={resource.id} resource={resource}
-                                     totalStatistics={calculateResourceTotalStatistics(resource)}/>
-                    ))}
-                </TableBody>
-            </Table>
-        </TableContainer>
-    );
 }
-
 
 function calculateResourceTotalStatistics(resource) {
     const totalWorkforceCost = resource.workforces

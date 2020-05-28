@@ -15,17 +15,26 @@ import Select from "@material-ui/core/Select";
 import Input from "@material-ui/core/Input";
 import Chip from "@material-ui/core/Chip";
 import InputLabel from "@material-ui/core/InputLabel";
+import {getMessages} from "../../infrastructure/LanguagesSystem";
+import FormHelperText from "@material-ui/core/FormHelperText";
+import FormControl from "@material-ui/core/FormControl";
 
 class ResourceForm extends React.Component {
+
+    messagesSubscription;
+
+    nullCompilation = {};
 
     state = {
         compilations: [],
         workforces: [],
         machines: [],
         materials: [],
+        selectedCompilation : this.nullCompilation,
         selectedWorkforces: [],
         selectedMachines: [],
         selectedMaterials: [],
+        messages: {}
     };
 
     requestForm = {
@@ -59,6 +68,14 @@ class ResourceForm extends React.Component {
                     this.setState({materials: response.data})
                 })
         })
+
+        this.messagesSubscription = getMessages().subscribe(messages => {
+            this.setState({messages: messages})
+        });
+    }
+
+    componentWillUnmount() {
+        this.messagesSubscription.unsubscribe();
     }
 
     render() {
@@ -83,18 +100,17 @@ class ResourceForm extends React.Component {
                         <LibraryBooksIcon/>
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        Create new resource
+                        {this.state.messages['ui.forms.resource.create']}
                     </Typography>
-                    <InputLabel>Compilation</InputLabel>
                     <Select
                         variant="outlined"
                         required
                         fullWidth
-                        onChange={(event) => this.requestForm.compilationId = event.target.value.id}
-                        inputProps={{'aria-label': 'Without label'}}
+                        value={this.state.selectedCompilation}
+                        onChange={(event) =>  this.setState({selectedCompilation: event.target.value})}
                     >
-                        <MenuItem value="" disabled>
-                            Compilation
+                        <MenuItem value={this.nullCompilation} disabled>
+                            {this.state.messages['compilation']}
                         </MenuItem>
                         {this.state.compilations.map(compilation => (
                             <MenuItem key={compilation.id} value={compilation}>{compilation.title}</MenuItem>))}
@@ -104,7 +120,7 @@ class ResourceForm extends React.Component {
                         margin="normal"
                         required
                         fullWidth
-                        label="Code"
+                        label={this.state.messages['fields.code']}
                         autoFocus
                         onChange={event => this.requestForm.code = event.target.value}
                     />
@@ -113,74 +129,85 @@ class ResourceForm extends React.Component {
                         margin="normal"
                         required
                         fullWidth
-                        label="Title"
+                        label={this.state.messages['fields.title']}
                         autoFocus
                         onChange={event => this.requestForm.title = event.target.value}
                     />
-                    <InputLabel>Workforce</InputLabel>
-                    <Select
-                        style={{width: 400}}
-                        multiple
-                        value={this.state.selectedWorkforces}
-                        onChange={(event) => this.setState({selectedWorkforces: event.target.value})}
-                        input={<Input id="select-multiple-chip"/>}
-                        renderValue={(selected) => (
-                            <div className={classes.chips}>
-                                {selected.map((workforce) => (
-                                    <Chip key={workforce.id} label={workforce.title} className={classes.chip}/>
-                                ))}
-                            </div>
-                        )}
-                        MenuProps={MenuProps}
-                    >
-                        {this.state.workforces.map((workforce) => (
-                            <MenuItem key={workforce.id} value={workforce}>
-                                {workforce.title}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                    <Select
-                        style={{width: 400}}
-                        multiple
-                        value={this.state.selectedMachines}
-                        onChange={(event) => this.setState({selectedMachines: event.target.value})}
-                        input={<Input id="select-multiple-chip"/>}
-                        renderValue={(selected) => (
-                            <div className={classes.chips}>
-                                {selected.map((machine) => (
-                                    <Chip key={machine.id} label={machine.title} className={classes.chip}/>
-                                ))}
-                            </div>
-                        )}
-                        MenuProps={MenuProps}
-                    >
-                        {this.state.machines.map((machine) => (
-                            <MenuItem key={machine.id} value={machine}>
-                                {machine.title}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                    <Select
-                        style={{width: 400}}
-                        multiple
-                        value={this.state.selectedMaterials}
-                        onChange={(event) => this.setState({selectedMaterials: event.target.value})}
-                        input={<Input id="select-multiple-chip"/>}
-                        renderValue={(selected) => (
-                            <div className={classes.chips}>
-                                {selected.map((material) => (
-                                    <Chip key={material.id} label={material.title} className={classes.chip}/>
-                                ))}
-                            </div>
-                        )}
-                        MenuProps={MenuProps}
-                    >
-                        {this.state.materials.map((material) => (
-                            <MenuItem key={material.id} value={material}>
-                                {material.title}
-                            </MenuItem>
-                        ))}
-                    </Select>
+                    <FormControl>
+                        <Select
+                            style={{width: 400}}
+                            multiple
+                            value={this.state.selectedWorkforces}
+                            onChange={(event) => this.setState({selectedWorkforces: event.target.value})}
+                            input={<Input id="select-multiple-chip"/>}
+                            className={classes.select}
+                            renderValue={(selected) => (
+                                <div className={classes.chips}>
+                                    {selected.map((workforce) => (
+                                        <Chip key={workforce.id} label={workforce.title} className={classes.chip}/>
+                                    ))}
+                                </div>
+                            )}
+                            MenuProps={MenuProps}
+                        >
+                            {this.state.workforces.map((workforce) => (
+                                <MenuItem key={workforce.id} value={workforce}>
+                                    {workforce.title}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                        <FormHelperText className={classes.helperText}>{this.state.messages['workforces']}</FormHelperText>
+                    </FormControl>
+                    <FormControl>
+                        <Select
+                            style={{width: 400}}
+                            multiple
+                            value={this.state.selectedMachines}
+                            onChange={(event) => this.setState({selectedMachines: event.target.value})}
+                            input={<Input id="select-multiple-chip"/>}
+                            className={classes.select}
+                            renderValue={(selected) => (
+                                <div className={classes.chips}>
+                                    {selected.map((machine) => (
+                                        <Chip key={machine.id} label={machine.title} className={classes.chip}/>
+                                    ))}
+                                </div>
+                            )}
+                            MenuProps={MenuProps}
+                        >
+                            {this.state.machines.map((machine) => (
+                                <MenuItem key={machine.id} value={machine}>
+                                    {machine.title}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                        <FormHelperText className={classes.helperText}>{this.state.messages['machines']}</FormHelperText>
+                    </FormControl>
+                    <FormControl>
+                        <Select
+                            style={{width: 400}}
+                            multiple
+                            value={this.state.selectedMaterials}
+                            onChange={(event) => this.setState({selectedMaterials: event.target.value})}
+                            input={<Input id="select-multiple-chip"/>}
+                            className={classes.select}
+                            renderValue={(selected) => (
+                                <div className={classes.chips}>
+                                    {selected.map((material) => (
+                                        <Chip key={material.id} label={material.title} className={classes.chip}/>
+                                    ))}
+                                </div>
+                            )}
+                            MenuProps={MenuProps}
+                        >
+                            {this.state.materials.map((material) => (
+                                <MenuItem key={material.id} value={material}>
+                                    {material.title}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                        <FormHelperText className={classes.helperText}>{this.state.messages['materials']}</FormHelperText>
+                    </FormControl>
                     <Button
                         fullWidth
                         variant="contained"
@@ -188,7 +215,7 @@ class ResourceForm extends React.Component {
                         className={classes.submit}
                         onClick={this.createCompilation.bind(this)}
                     >
-                        Create
+                        {this.state.messages['ui.create']}
                     </Button>
                 </div>
             </Container>
@@ -230,6 +257,11 @@ const useStyles = (theme) => ({
     chip: {
         margin: 2,
     },
+    select: {
+        margin: theme.spacing(3, 0, 0, 0)
+    },
+    helperText: {
+    }
 });
 
 export default withRouter(withStyles(useStyles)(ResourceForm))

@@ -1,6 +1,6 @@
 import HttpClient from "./HttpClient";
 import {BACKEND_URL} from "../Static";
-import {BehaviorSubject, ReplaySubject} from "rxjs";
+import {BehaviorSubject, combineLatest, ReplaySubject} from "rxjs";
 import {map, switchMap} from "rxjs/operators";
 
 const languagesSubject = new BehaviorSubject([]);
@@ -17,13 +17,13 @@ HttpClient.doRequest(axios => axios.get(`${BACKEND_URL}/api/languages`)
         }
     }));
 
-
 HttpClient.doRequest(axios => axios.get(`${BACKEND_URL}/api/languages/messages`)
     .then((response) => {
         const messages = {};
         response.data.forEach((message) => {
             messages[message.id] = message.values;
         })
+        Object.freeze(messages);
         messagesSubject.next(messages);
     }));
 
@@ -33,20 +33,20 @@ export function getMessage(messageId, languageId) {
     }));
 }
 
-export function getMessages(messageIds, languageId) {
-    return messagesSubject.asObservable().pipe(map(messages => {
-        const requiredMessages = {};
-        messageIds.forEach(messageId => requiredMessages[messageId] = (messages[messageId] && messages[messageId][languageId]) || `Missing message [${messageId}]`);
-        return requiredMessages;
-    }));
-}
-
 export function getCurrentLanguage() {
     return languagesSubject.asObservable().pipe(switchMap(() => currentLanguage.asObservable()));
 }
 
 export function getLanguages() {
     return languagesSubject.asObservable();
+}
+
+export function getMessages() {
+    return combineLatest([getCurrentLanguage(), messagesSubject.asObservable()]).pipe(map(([currentLanguage, messages]) => {
+        const currentLanguageMessages = {};
+        Object.keys(messages).forEach(messageId => currentLanguageMessages[messageId] = (messages[messageId] && messages[messageId][currentLanguage.id]) || `Missing message [${messageId}]`);
+        return currentLanguageMessages;
+    }));
 }
 
 export function changeCurrentLanguage(languageId) {

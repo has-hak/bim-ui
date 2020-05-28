@@ -12,11 +12,15 @@ import HttpClient from "../../infrastructure/HttpClient";
 import {BACKEND_URL} from "../../Static";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
+import {getMessages} from "../../infrastructure/LanguagesSystem";
 
 class MaterialForm extends React.Component {
 
+    messagesSubscription;
+
     state = {
         measureTypes: [],
+        messages:{}
     };
 
     requestForm = {
@@ -34,6 +38,14 @@ class MaterialForm extends React.Component {
                     this.setState({measureTypes: response.data})
                 })
         })
+
+        this.messagesSubscription = getMessages().subscribe(messages => {
+            this.setState({messages: messages})
+        });
+    }
+
+    componentWillUnmount() {
+        this.messagesSubscription.unsubscribe();
     }
 
     render() {
@@ -47,14 +59,14 @@ class MaterialForm extends React.Component {
                         <LibraryBooksIcon/>
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        Create new material
+                        {this.state.messages['ui.forms.material.create']}
                     </Typography>
                     <TextField
                         variant="outlined"
                         margin="normal"
                         required
                         fullWidth
-                        label="Code"
+                        label={this.state.messages['fields.code']}
                         autoFocus
                         onChange={event => this.requestForm.code = event.target.value}
                     />
@@ -63,7 +75,7 @@ class MaterialForm extends React.Component {
                         margin="normal"
                         required
                         fullWidth
-                        label="Title"
+                        label={this.state.messages['fields.title']}
                         autoFocus
                         onChange={event => this.requestForm.title = event.target.value}
                     />
@@ -86,7 +98,7 @@ class MaterialForm extends React.Component {
                         required
                         fullWidth
                         type="number"
-                        label="Unit"
+                        label={this.state.messages['fields.unit']}
                         autoFocus
                         onChange={event => this.requestForm.unit = event.target.value}
                     />
@@ -96,7 +108,7 @@ class MaterialForm extends React.Component {
                         required
                         fullWidth
                         type="number"
-                        label="Unit cost"
+                        label={this.state.messages['fields.unit-cost']}
                         autoFocus
                         onChange={event => this.requestForm.unitCost = event.target.value}
                     />
@@ -107,7 +119,7 @@ class MaterialForm extends React.Component {
                         className={classes.submit}
                         onClick={this.createCompilation.bind(this)}
                     >
-                        Create
+                        {this.state.messages['ui.create']}
                     </Button>
                 </div>
             </Container>

@@ -9,11 +9,15 @@ import TableCell from "@material-ui/core/TableCell";
 import TableBody from "@material-ui/core/TableBody";
 import {makeStyles} from "@material-ui/styles";
 import HttpClient from "../../infrastructure/HttpClient";
+import {getMessages} from "../../infrastructure/LanguagesSystem";
 
 export default class MaterialsTable extends React.Component {
 
+    messagesSubscription;
+
     state = {
-        materials: []
+        materials: [],
+        messages:{}
     }
 
     componentDidMount() {
@@ -23,6 +27,14 @@ export default class MaterialsTable extends React.Component {
                     this.setState({materials: response.data})
                 })
         });
+
+        this.messagesSubscription = getMessages().subscribe(messages => {
+            this.setState({messages: messages})
+        });
+    }
+
+    componentWillUnmount() {
+       this.messagesSubscription.unsubscribe();
     }
 
     render() {
@@ -37,12 +49,12 @@ export default class MaterialsTable extends React.Component {
                 <Table className={classes.table} aria-label="simple table">
                     <TableHead>
                         <TableRow>
-                            <TableCell align="left">Id</TableCell>
-                            <TableCell align="left">Code</TableCell>
-                            <TableCell align="left">Title</TableCell>
-                            <TableCell align="left">Unit</TableCell>
-                            <TableCell align="left">Unit cost</TableCell>
-                            <TableCell align="left">Measure type</TableCell>
+                            <TableCell align="left">{this.state.messages['fields.id']}</TableCell>
+                            <TableCell align="left">{this.state.messages['fields.code']}</TableCell>
+                            <TableCell align="left">{this.state.messages['fields.title']}</TableCell>
+                            <TableCell align="left">{this.state.messages['fields.unit']}</TableCell>
+                            <TableCell align="left">{this.state.messages['fields.unit-cost']}</TableCell>
+                            <TableCell align="left">{this.state.messages['fields.measure-type']}</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -53,7 +65,7 @@ export default class MaterialsTable extends React.Component {
                                 <TableCell align="left">{material.title}</TableCell>
                                 <TableCell align="left">{material.unit}</TableCell>
                                 <TableCell align="left">{material.unitCost}</TableCell>
-                                <TableCell align="left">{material.measureType}</TableCell>
+                                <TableCell align="left">{this.state.messages[`measure-types.${material.measureType}`]}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

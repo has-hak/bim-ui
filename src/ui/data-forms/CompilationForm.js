@@ -10,11 +10,28 @@ import {withStyles} from "@material-ui/core";
 import {withRouter} from "react-router-dom";
 import HttpClient from "../../infrastructure/HttpClient";
 import {BACKEND_URL} from "../../Static";
+import {getMessages} from "../../infrastructure/LanguagesSystem";
 
 class CompilationForm extends React.Component {
 
+    messagesSubscription;
+
+    state = {
+        messages: []
+    }
+
     requestForm = {
         title: null
+    }
+
+    componentDidMount() {
+        this.messagesSubscription = getMessages().subscribe(messages => {
+            this.setState({messages: messages})
+        });
+    }
+
+    componentWillUnmount() {
+        this.messagesSubscription.unsubscribe();
     }
 
     render() {
@@ -28,7 +45,7 @@ class CompilationForm extends React.Component {
                         <LibraryBooksIcon/>
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        Create new compilation
+                        {this.state.messages['ui.forms.compilation.create']}
                     </Typography>
                     <TextField
                         variant="outlined"
@@ -36,7 +53,7 @@ class CompilationForm extends React.Component {
                         required
                         fullWidth
                         id="title"
-                        label="Title"
+                        label={this.state.messages['fields.title']}
                         autoFocus
                         onChange={event => this.requestForm.title = event.target.value}
                     />
@@ -47,7 +64,7 @@ class CompilationForm extends React.Component {
                         className={classes.submit}
                         onClick={this.createCompilation.bind(this)}
                     >
-                        Create
+                        {this.state.messages['ui.create']}
                     </Button>
                 </div>
             </Container>
