@@ -66,7 +66,7 @@ export default class ResourcesTable extends React.Component {
                             <TableCell align="left">{this.state.messages['fields.title']}</TableCell>
                             {this.state.availableMeasures.map(measure => (
                                 <TableCell key={measure.type}
-                                           align="left">{`${measure.type} (${measure.unit})`}</TableCell>))}
+                                           align="left">{`${this.state.messages[`measure-types.${measure.type}`]} (${this.state.messages[`measure-units.${measure.unit}`]})`}</TableCell>))}
                         </TableRow>
                     </TableHead>
                     <TableBody>
