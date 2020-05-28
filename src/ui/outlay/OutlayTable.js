@@ -84,7 +84,7 @@ function ResourceRow(props) {
                                                         </TableHead>
                                                         <TableBody>
                                                             {resource.workforces.map((workforce) => (
-                                                                <WorkforcesRow key={workforce.id}
+                                                                <WorkforcesRow messages={messages} key={workforce.id}
                                                                                workforce={workforce}/>
                                                             ))}
                                                         </TableBody>
@@ -126,7 +126,7 @@ function ResourceRow(props) {
                                                         </TableHead>
                                                         <TableBody>
                                                             {resource.machines.map((machine) => (
-                                                                <MachineRow key={machine.id} machine={machine}/>
+                                                                <MachineRow messages={messages} key={machine.id} machine={machine}/>
                                                             ))}
                                                         </TableBody>
                                                     </Table>
@@ -167,7 +167,7 @@ function ResourceRow(props) {
                                                         </TableHead>
                                                         <TableBody>
                                                             {resource.materials.map((material) => (
-                                                                <MaterialRow key={material.id} material={material}/>
+                                                                <MaterialRow messages={messages} key={material.id} material={material}/>
                                                             ))}
                                                         </TableBody>
                                                     </Table>
@@ -237,7 +237,7 @@ function ResourceRow(props) {
 }
 
 function WorkforcesRow(props) {
-    const {workforce} = props;
+    const {workforce, messages} = props;
     const classes = useRowStyles();
 
     return (
@@ -245,7 +245,7 @@ function WorkforcesRow(props) {
             <TableRow className={classes.root}>
                 <TableCell align="left">{workforce.code}</TableCell>
                 <TableCell align="left">{workforce.title}</TableCell>
-                <TableCell align="left">մարդ-ժամ</TableCell>
+                <TableCell align="left">{messages['measure-units.HUMAN_HOUR']}</TableCell>
                 <TableCell align="left">{workforce.unit}</TableCell>
                 <TableCell align="left">{workforce.unitCost}</TableCell>
                 <TableCell align="left">{workforce.unit * workforce.unitCost}</TableCell>
@@ -255,7 +255,7 @@ function WorkforcesRow(props) {
 }
 
 function MachineRow(props) {
-    const {machine} = props;
+    const {machine, messages} = props;
     const classes = useRowStyles();
 
     return (
@@ -263,7 +263,7 @@ function MachineRow(props) {
             <TableRow className={classes.root}>
                 <TableCell align="left">{machine.code}</TableCell>
                 <TableCell align="left">{machine.title}</TableCell>
-                <TableCell align="left">մեքենա-ժամ</TableCell>
+                <TableCell align="left">{messages['measure-units.MACHINE_HOUR']}</TableCell>
                 <TableCell align="left">{machine.unit}</TableCell>
                 <TableCell align="left">{machine.unitCost}</TableCell>
                 <TableCell align="left">{machine.unit * machine.unitCost}</TableCell>
@@ -273,7 +273,7 @@ function MachineRow(props) {
 }
 
 function MaterialRow(props) {
-    const {material} = props;
+    const {material, messages} = props;
     const classes = useRowStyles();
 
     return (
@@ -281,7 +281,7 @@ function MaterialRow(props) {
             <TableRow className={classes.root}>
                 <TableCell align="left">{material.code}</TableCell>
                 <TableCell align="left">{material.title}</TableCell>
-                <TableCell align="left">{material.measureType}</TableCell>
+                <TableCell align="left">{messages[`measure-types.${material.measureType}`]}</TableCell>
                 <TableCell align="left">{material.unit}</TableCell>
                 <TableCell align="left">{material.unitCost}</TableCell>
                 <TableCell align="left">{material.unit * material.unitCost}</TableCell>
