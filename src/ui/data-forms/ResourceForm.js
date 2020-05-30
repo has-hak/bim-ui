@@ -38,7 +38,6 @@ class ResourceForm extends React.Component {
     };
 
     requestForm = {
-        compilationId: null,
         code: null,
         title: null,
     }
@@ -225,6 +224,7 @@ class ResourceForm extends React.Component {
     createCompilation() {
         const body = {
             ...this.requestForm,
+            compilationId: this.state.selectedCompilation.id,
             workforceIds: this.state.workforces.map(value => value.id),
             machineIds: this.state.machines.map(value => value.id),
             materialIds: this.state.materials.map(value => value.id),

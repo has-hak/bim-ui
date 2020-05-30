@@ -84,13 +84,12 @@ class MaterialForm extends React.Component {
                         required
                         fullWidth
                         onChange={(event) => this.requestForm.measureType = event.target.value}
-                        inputProps={{'aria-label': 'Without label'}}
                     >
                         <MenuItem value="" disabled>
-                            Measure Type
+                            {this.state.messages['fields.measure-type']}
                         </MenuItem>
                         {this.state.measureTypes.map(measureType => (
-                            <MenuItem value={measureType}>{measureType}</MenuItem>))}
+                            <MenuItem value={measureType}>{this.state.messages[`measure-types.${measureType}`]}</MenuItem>))}
                     </Select>
                     <TextField
                         variant="outlined"

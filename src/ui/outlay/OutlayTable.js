@@ -319,7 +319,7 @@ export default class OutlayTable extends React.Component {
                 <Table aria-label="collapsible table">
                     <TableHead>
                         <TableRow>
-                            <TableCell>{this.state.messages['fields.title']}</TableCell>
+                            <TableCell>{this.state.messages['resources']}</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
