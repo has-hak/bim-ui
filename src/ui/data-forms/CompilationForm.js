@@ -8,8 +8,6 @@ import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import {withStyles} from "@material-ui/core";
 import {withRouter} from "react-router-dom";
-import HttpClient from "../../infrastructure/HttpClient";
-import {BACKEND_URL} from "../../Static";
 import {getMessages} from "../../infrastructure/LanguagesSystem";
 
 class CompilationForm extends React.Component {
@@ -20,14 +18,16 @@ class CompilationForm extends React.Component {
         messages: []
     }
 
-    requestForm = {
-        title: null
+    formData = {
+        title: ""
     }
 
     componentDidMount() {
         this.messagesSubscription = getMessages().subscribe(messages => {
             this.setState({messages: messages})
         });
+
+        this.formData = {...this.props.inputFormData};
     }
 
     componentWillUnmount() {
@@ -35,7 +35,7 @@ class CompilationForm extends React.Component {
     }
 
     render() {
-        const {classes} = this.props;
+        const {classes, inputFormData = {}, onSubmit} = this.props;
 
         return (
             <Container component="main" maxWidth="xs">
@@ -52,29 +52,23 @@ class CompilationForm extends React.Component {
                         margin="normal"
                         required
                         fullWidth
-                        id="title"
                         label={this.state.messages['fields.title']}
                         autoFocus
-                        onChange={event => this.requestForm.title = event.target.value}
+                        defaultValue={inputFormData.title}
+                        onChange={event => this.formData.title = event.target.value}
                     />
                     <Button
                         fullWidth
                         variant="contained"
                         color="primary"
                         className={classes.submit}
-                        onClick={this.createCompilation.bind(this)}
+                        onClick={() => onSubmit(this.formData)}
                     >
                         {this.state.messages['ui.create']}
                     </Button>
                 </div>
             </Container>
         );
-    }
-
-    createCompilation() {
-        HttpClient.doRequest(axios => {
-            return axios.post(`${BACKEND_URL}/api/compilations`, this.requestForm, {})
-        })
     }
 }
 

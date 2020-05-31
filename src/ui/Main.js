@@ -20,10 +20,8 @@ import OutlayForm from "./outlay/OutlayForm";
 import {withStyles} from "@material-ui/core";
 import Button from "@material-ui/core/Button";
 import UserContext from "../infrastructure/UserContext";
-import SaveAltIcon from '@material-ui/icons/SaveAlt';
 import {Subject} from "rxjs";
-import {getCurrentLanguage, getMessages} from "../infrastructure/LanguagesSystem";
-import {takeUntil} from "rxjs/operators";
+import {getMessages} from "../infrastructure/LanguagesSystem";
 import DataImport from "./data-forms/DataImport";
 
 class Main extends React.Component {
@@ -33,7 +31,7 @@ class Main extends React.Component {
     state = {
         drawerOpen: true,
         messages: {
-            "logout": "Logout",
+            "ui.logout": "Logout",
             "ui.main.data-view": "Data View",
             "ui.main.outlay-calculation": "Outlay calculation"
         }
@@ -41,10 +39,8 @@ class Main extends React.Component {
 
 
     componentDidMount() {
-        getCurrentLanguage().pipe(takeUntil(this.destroy)).subscribe(currentLanguage => {
-            getMessages(["ui.logout", "ui.main.data-view", "ui.main.outlay-calculation"], currentLanguage.id).pipe(takeUntil(this.destroy)).subscribe(messages => {
-                this.setState({messages: messages})
-            });
+        this.messagesSubscription = getMessages().subscribe(messages => {
+            this.setState({messages: messages})
         });
     }
 
@@ -77,12 +73,10 @@ class Main extends React.Component {
                         >
                             <MenuIcon/>
                         </IconButton>
-                        <div>
-                            <Button aria-controls="simple-menu" aria-haspopup="true" variant="contained"
-                                    color="secondary" onClick={UserContext.logout}>
-                                {this.state.messages['ui.logout']}
-                            </Button>
-                        </div>
+                        <Button aria-controls="simple-menu" aria-haspopup="true" variant="contained"
+                                color="secondary" onClick={UserContext.logout}>
+                            {this.state.messages['ui.logout']}
+                        </Button>
                     </Toolbar>
                 </AppBar>
                 <Drawer

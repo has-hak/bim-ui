@@ -14,7 +14,6 @@ import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
 import Input from "@material-ui/core/Input";
 import Chip from "@material-ui/core/Chip";
-import InputLabel from "@material-ui/core/InputLabel";
 import {getMessages} from "../../infrastructure/LanguagesSystem";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import FormControl from "@material-ui/core/FormControl";
@@ -30,14 +29,14 @@ class ResourceForm extends React.Component {
         workforces: [],
         machines: [],
         materials: [],
-        selectedCompilation : this.nullCompilation,
+        selectedCompilation: this.nullCompilation,
         selectedWorkforces: [],
         selectedMachines: [],
         selectedMaterials: [],
-        messages: {}
+        messages: {'ui.forms.resource.create': 'Create'}
     };
 
-    requestForm = {
+    formData = {
         code: null,
         title: null,
     }
@@ -46,32 +45,55 @@ class ResourceForm extends React.Component {
         HttpClient.doRequest(axios => {
             return axios.get(`${BACKEND_URL}/api/compilations`)
                 .then((response) => {
-                    this.setState({compilations: response.data})
+                    const compilations = response.data
+                    const selectedCompilation = compilations.find(compilation => compilation.id === this.props.inputFormData.compilationId) || this.nullCompilation
+                    this.setState({compilations: compilations, selectedCompilation: selectedCompilation})
                 })
         })
         HttpClient.doRequest(axios => {
             return axios.get(`${BACKEND_URL}/api/workforces`)
                 .then((response) => {
-                    this.setState({workforces: response.data})
+                    const workforces = response.data;
+                    let selectedWorkforces = [];
+                    const inputFormData = this.props.inputFormData;
+                    if (inputFormData.workforceIds) {
+                        selectedWorkforces = workforces.filter(workforce => inputFormData.workforceIds.includes(workforce.id))
+                    }
+                    this.setState({workforces: workforces, selectedWorkforces: selectedWorkforces})
                 })
         })
         HttpClient.doRequest(axios => {
             return axios.get(`${BACKEND_URL}/api/machines`)
                 .then((response) => {
-                    this.setState({machines: response.data})
+                    const machines = response.data;
+                    let selectedMachines = []
+                    const inputFormData = this.props.inputFormData;
+                    if (inputFormData.machineIds) {
+                        selectedMachines = machines.filter(machine => inputFormData.machineIds.includes(machine.id))
+                    }
+                    this.setState({machines: machines, selectedMachines: selectedMachines})
                 })
         })
         HttpClient.doRequest(axios => {
             return axios.get(`${BACKEND_URL}/api/materials`)
                 .then((response) => {
-                    this.setState({materials: response.data})
+                    const materials = response.data
+                    let selectedMaterials = []
+                    const inputFormData = this.props.inputFormData;
+                    if (inputFormData.materialIds) {
+                        selectedMaterials = materials.filter(material => inputFormData.materialIds.includes(material.id))
+                    }
+                    this.setState({materials: materials, selectedMaterials: selectedMaterials})
                 })
         })
 
         this.messagesSubscription = getMessages().subscribe(messages => {
             this.setState({messages: messages})
         });
+
+        this.formData = {...this.props.inputFormData};
     }
+
 
     componentWillUnmount() {
         this.messagesSubscription.unsubscribe();
@@ -89,7 +111,7 @@ class ResourceForm extends React.Component {
             },
         };
 
-        const {classes} = this.props;
+        const {classes, inputFormData = {}} = this.props;
 
         return (
             <Container component="main" maxWidth="xs">
@@ -106,7 +128,7 @@ class ResourceForm extends React.Component {
                         required
                         fullWidth
                         value={this.state.selectedCompilation}
-                        onChange={(event) =>  this.setState({selectedCompilation: event.target.value})}
+                        onChange={(event) => this.setState({selectedCompilation: event.target.value})}
                     >
                         <MenuItem value={this.nullCompilation} disabled>
                             {this.state.messages['compilation']}
@@ -121,7 +143,8 @@ class ResourceForm extends React.Component {
                         fullWidth
                         label={this.state.messages['fields.code']}
                         autoFocus
-                        onChange={event => this.requestForm.code = event.target.value}
+                        defaultValue={inputFormData.code}
+                        onChange={event => this.formData.code = event.target.value}
                     />
                     <TextField
                         variant="outlined"
@@ -130,7 +153,8 @@ class ResourceForm extends React.Component {
                         fullWidth
                         label={this.state.messages['fields.title']}
                         autoFocus
-                        onChange={event => this.requestForm.title = event.target.value}
+                        defaultValue={inputFormData.title}
+                        onChange={event => this.formData.title = event.target.value}
                     />
                     <FormControl>
                         <Select
@@ -155,7 +179,8 @@ class ResourceForm extends React.Component {
                                 </MenuItem>
                             ))}
                         </Select>
-                        <FormHelperText className={classes.helperText}>{this.state.messages['workforces']}</FormHelperText>
+                        <FormHelperText
+                            className={classes.helperText}>{this.state.messages['workforces']}</FormHelperText>
                     </FormControl>
                     <FormControl>
                         <Select
@@ -180,7 +205,8 @@ class ResourceForm extends React.Component {
                                 </MenuItem>
                             ))}
                         </Select>
-                        <FormHelperText className={classes.helperText}>{this.state.messages['machines']}</FormHelperText>
+                        <FormHelperText
+                            className={classes.helperText}>{this.state.messages['machines']}</FormHelperText>
                     </FormControl>
                     <FormControl>
                         <Select
@@ -205,14 +231,15 @@ class ResourceForm extends React.Component {
                                 </MenuItem>
                             ))}
                         </Select>
-                        <FormHelperText className={classes.helperText}>{this.state.messages['materials']}</FormHelperText>
+                        <FormHelperText
+                            className={classes.helperText}>{this.state.messages['materials']}</FormHelperText>
                     </FormControl>
                     <Button
                         fullWidth
                         variant="contained"
                         color="primary"
                         className={classes.submit}
-                        onClick={this.createCompilation.bind(this)}
+                        onClick={this.submit.bind(this)}
                     >
                         {this.state.messages['ui.create']}
                     </Button>
@@ -221,18 +248,17 @@ class ResourceForm extends React.Component {
         );
     }
 
-    createCompilation() {
-        const body = {
-            ...this.requestForm,
+    submit() {
+        const data = {
+            ...this.formData,
             compilationId: this.state.selectedCompilation.id,
-            workforceIds: this.state.workforces.map(value => value.id),
-            machineIds: this.state.machines.map(value => value.id),
-            materialIds: this.state.materials.map(value => value.id),
+            workforceIds: this.state.selectedWorkforces.map(value => value.id),
+            machineIds: this.state.selectedMachines.map(value => value.id),
+            materialIds: this.state.selectedMaterials.map(value => value.id),
         };
 
-        HttpClient.doRequest(axios => {
-            return axios.post(`${BACKEND_URL}/api/resources`, body, {})
-        })
+        console.log(data)
+        this.props.onSubmit(data);
     }
 }
 
@@ -260,8 +286,7 @@ const useStyles = (theme) => ({
     select: {
         margin: theme.spacing(3, 0, 0, 0)
     },
-    helperText: {
-    }
+    helperText: {}
 });
 
 export default withRouter(withStyles(useStyles)(ResourceForm))

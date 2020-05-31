@@ -9,24 +9,17 @@ import MaterialsTable from "./MaterialsTable";
 import WorkforcesTable from "./WorkforcesTable";
 import MachinesTable from "./MachinesTable";
 import {withStyles} from "@material-ui/core";
-import Button from "@material-ui/core/Button";
 import {dataImportRouting} from "../../infrastructure/Router";
 import {getMessages} from "../../infrastructure/LanguagesSystem";
 
 const useStyles = (theme) => ({
-        root: {
-            flexGrow: 1,
-            width: '100%',
-            backgroundColor: theme.palette.background.paper,
-        },
-        addButton: {
-            position: 'absolute',
-            right: 5,
-            top: 5,
-            width: 125,
-            'text-transform': 'none'
-        }
-    });
+    root: {
+        flexGrow: 1,
+        width: '100%',
+        backgroundColor: theme.palette.background.paper,
+    },
+    drawer: {}
+});
 
 class DataView extends React.Component {
 
@@ -92,8 +85,6 @@ class DataView extends React.Component {
                              onClick={() => props.history.push(tabUrls[3])}/>
                         <Tab label={this.state.messages['materials']}
                              onClick={() => props.history.push(tabUrls[4])}/>
-                        <Button variant={"contained"} color={"primary"} className={classes.addButton}
-                                onClick={this.addNew.bind(this)}>{this.state.messages['ui.main.data-view.add-new']}</Button>
                     </Tabs>
                 </AppBar>
                 <Switch>

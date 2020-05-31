@@ -8,15 +8,14 @@ function doRequest(requestCallback) {
         throw new Error("Undefined returned from request callback");
     }
 
-    requestPromise.catch
-    (error => {
+    return requestPromise.catch(error => {
         if (error.response) {
             if (error.response.status === 401) {
                 UserContext.signed = false;
                 window.location.href = signInRouting;
             }
         }
-        console.log(error);
+        throw error;
     })
 
 

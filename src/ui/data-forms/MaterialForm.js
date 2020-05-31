@@ -20,10 +20,10 @@ class MaterialForm extends React.Component {
 
     state = {
         measureTypes: [],
-        messages:{}
+        messages: {}
     };
 
-    requestForm = {
+    formData = {
         code: null,
         title: null,
         unit: null,
@@ -42,6 +42,8 @@ class MaterialForm extends React.Component {
         this.messagesSubscription = getMessages().subscribe(messages => {
             this.setState({messages: messages})
         });
+
+        this.formData = {...this.props.inputFormData};
     }
 
     componentWillUnmount() {
@@ -49,7 +51,7 @@ class MaterialForm extends React.Component {
     }
 
     render() {
-        const {classes} = this.props;
+        const {classes, inputFormData = {}, onSubmit} = this.props;
 
         return (
             <Container component="main" maxWidth="xs">
@@ -68,7 +70,8 @@ class MaterialForm extends React.Component {
                         fullWidth
                         label={this.state.messages['fields.code']}
                         autoFocus
-                        onChange={event => this.requestForm.code = event.target.value}
+                        defaultValue={inputFormData.code}
+                        onChange={event => this.formData.code = event.target.value}
                     />
                     <TextField
                         variant="outlined"
@@ -77,19 +80,22 @@ class MaterialForm extends React.Component {
                         fullWidth
                         label={this.state.messages['fields.title']}
                         autoFocus
-                        onChange={event => this.requestForm.title = event.target.value}
+                        defaultValue={inputFormData.title}
+                        onChange={event => this.formData.title = event.target.value}
                     />
                     <Select
                         variant="outlined"
                         required
                         fullWidth
-                        onChange={(event) => this.requestForm.measureType = event.target.value}
+                        defaultValue={inputFormData.measureType}
+                        onChange={(event) => this.formData.measureType = event.target.value}
                     >
                         <MenuItem value="" disabled>
                             {this.state.messages['fields.measure-type']}
                         </MenuItem>
                         {this.state.measureTypes.map(measureType => (
-                            <MenuItem value={measureType}>{this.state.messages[`measure-types.${measureType}`]}</MenuItem>))}
+                            <MenuItem
+                                value={measureType}>{this.state.messages[`measure-types.${measureType}`]}</MenuItem>))}
                     </Select>
                     <TextField
                         variant="outlined"
@@ -99,7 +105,8 @@ class MaterialForm extends React.Component {
                         type="number"
                         label={this.state.messages['fields.unit']}
                         autoFocus
-                        onChange={event => this.requestForm.unit = event.target.value}
+                        defaultValue={inputFormData.unit}
+                        onChange={event => this.formData.unit = event.target.value}
                     />
                     <TextField
                         variant="outlined"
@@ -109,26 +116,21 @@ class MaterialForm extends React.Component {
                         type="number"
                         label={this.state.messages['fields.unit-cost']}
                         autoFocus
-                        onChange={event => this.requestForm.unitCost = event.target.value}
+                        defaultValue={inputFormData.unitCost}
+                        onChange={event => this.formData.unitCost = event.target.value}
                     />
                     <Button
                         fullWidth
                         variant="contained"
                         color="primary"
                         className={classes.submit}
-                        onClick={this.createCompilation.bind(this)}
+                        onClick={() => onSubmit(this.formData)}
                     >
                         {this.state.messages['ui.create']}
                     </Button>
                 </div>
             </Container>
         );
-    }
-
-    createCompilation() {
-        HttpClient.doRequest(axios => {
-            return axios.post(`${BACKEND_URL}/api/materials`, this.requestForm, {})
-        })
     }
 }
 

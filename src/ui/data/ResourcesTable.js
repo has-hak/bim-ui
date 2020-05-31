@@ -1,44 +1,44 @@
 import * as React from "react";
+import {Fragment} from "react";
 import {BACKEND_URL} from "../../Static";
-import TableContainer from "@material-ui/core/TableContainer";
-import Table from "@material-ui/core/Table";
-import {Paper} from "@material-ui/core";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
-import TableCell from "@material-ui/core/TableCell";
-import TableBody from "@material-ui/core/TableBody";
-import {makeStyles} from "@material-ui/styles";
 import HttpClient from "../../infrastructure/HttpClient";
 import {getMessages} from "../../infrastructure/LanguagesSystem";
+import MaterialTable from "material-table";
+import AddToPhotosIcon from "@material-ui/icons/AddToPhotos";
+import Drawer from "@material-ui/core/Drawer";
+import ResourceForm from "../data-forms/ResourceForm";
+import {makeStyles} from "@material-ui/core/styles";
 
 export default class ResourcesTable extends React.Component {
 
     state = {
+        drawerMetadata: {
+            isOpen: false,
+            editType: null,
+            data: {}
+        },
         resources: [],
         availableMeasures: [],
-        messages: []
+        messages: {}
     }
 
     componentDidMount() {
-        HttpClient.doRequest(axios => {
-            return axios.get(`${BACKEND_URL}/api/resources`)
-                .then((response) => {
-                    const data = response.data;
-                    const measures = new Set();
-                    data.resources.forEach(resource => Array.from(Object.keys(resource.measures)).forEach(measure => measures.add(measure)))
+        this.fetchAll().then((response) => {
+            const data = response.data;
+            const measures = new Set();
+            data.resources.forEach(resource => Array.from(Object.keys(resource.measures)).forEach(measure => measures.add(measure)))
 
-                    const measureUnits = data.standards.measureUnits;
+            const measureUnits = data.standards.measureUnits;
 
-                    this.setState({
-                        resources: data.resources,
-                        availableMeasures: Array.from(measures.values()).map(value => {
-                            return {
-                                type: value,
-                                unit: measureUnits[value]
-                            }
-                        })
-                    })
+            this.setState({
+                resources: data.resources,
+                availableMeasures: Array.from(measures.values()).map(value => {
+                    return {
+                        type: value,
+                        unit: measureUnits[value]
+                    }
                 })
+            })
         })
 
         this.messagesSubscription = getMessages().subscribe(messages => {
@@ -52,36 +52,118 @@ export default class ResourcesTable extends React.Component {
 
     render() {
         const classes = makeStyles({
-            table: {
-                minWidth: 650,
+            chips: {
+                display: 'flex',
+                flexWrap: 'wrap',
             },
+            chip: {
+                margin: 2,
+            },
+            helperText: {}
         });
 
+        const columns = [
+            {title: this.state.messages['fields.id'], field: 'id'},
+            {title: this.state.messages['fields.code'], field: 'code'},
+            {title: this.state.messages['fields.title'], field: 'title'},
+        ];
+
+        this.state.availableMeasures.forEach(measure => {
+            columns.push({
+                title: `${this.state.messages[`measure-types.${measure.type}`]} (${this.state.messages[`measure-units.${measure.unit}`]})`,
+                render: (resource) => resource.measures[measure.type] ? `${resource.measures[measure.type].startValue}-${resource.measures[measure.type].endValue}` : this.state.messages['N/A']
+            })
+        })
+
         return (
-            <TableContainer component={Paper} className='table'>
-                <Table className={classes.table} aria-label="simple table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell align="left">{this.state.messages['fields.id']}</TableCell>
-                            <TableCell align="left">{this.state.messages['fields.title']}</TableCell>
-                            {this.state.availableMeasures.map(measure => (
-                                <TableCell key={measure.type}
-                                           align="left">{`${this.state.messages[`measure-types.${measure.type}`]} (${this.state.messages[`measure-units.${measure.unit}`]})`}</TableCell>))}
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {this.state.resources.map((resource) => (
-                            <TableRow key={resource.id}>
-                                <TableCell align="left">{resource.id}</TableCell>
-                                <TableCell align="left">{resource.title}</TableCell>
-                                {this.state.availableMeasures.map(measure => (
-                                    <TableCell key={measure.type}
-                                               align="left">{resource.measures[measure.type] ? `${resource.measures[measure.type].startValue}-${resource.measures[measure.type].endValue}` : 'N/A'}</TableCell>))}
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+            <Fragment>
+                <MaterialTable
+                    title=" "
+                    columns={columns}
+                    data={this.state.resources}
+                    options={{
+                        actionsColumnIndex: -1
+                    }}
+                    actions={[
+                        {
+                            icon: () => <AddToPhotosIcon fontSize={'large'}/>,
+                            onClick: () => {
+                                this.setState({drawerMetadata: {isOpen: true, editType: 'add'}});
+                            },
+                            isFreeAction: true,
+                        },
+                        {
+                            icon: 'edit',
+                            onClick: (event, rowData) => {
+                                this.setState({drawerMetadata: {isOpen: true, editType: 'edit', data: rowData}});
+                            },
+                        },
+                    ]}
+                    editable={{
+                        onRowDelete: (oldData) =>
+                            this.delete(oldData.id).then(() => {
+                                this.setState((prevState) => {
+                                    const data = [...prevState.resources];
+                                    data.splice(data.indexOf(oldData), 1);
+                                    return {...prevState, resources: data};
+                                })
+                            }).catch(reason => console.log(reason))
+                    }}
+                />
+                <Drawer anchor={'right'} open={this.state.drawerMetadata.isOpen}
+                        onClose={() => this.setState({drawerMetadata: {isOpen: false}})}
+                        onOpen={() => true}>
+                    <ResourceForm inputFormData={this.state.drawerMetadata.data} onSubmit={(formData) => {
+                        let promise;
+                        if (this.state.drawerMetadata.editType === 'add') {
+                            promise = this.save(formData)
+                                .then((savedResource) => {
+                                    this.setState((prevState) => {
+                                        const data = [...prevState.resources];
+                                        data.push(savedResource);
+                                        return {...prevState, resources: data};
+                                    })
+                                })
+                        } else {
+                            promise = this.update(formData).then(() => {
+                                this.setState((prevState) => {
+                                    const data = [...prevState.resources];
+                                    data[data.indexOf(this.state.drawerMetadata.data)] = formData;
+                                    return {...prevState, resources: data};
+                                });
+                            })
+                        }
+                        promise.then(() => this.setState({drawerMetadata: {}}))
+                    }
+                    }/>
+                </Drawer>
+            </Fragment>
         );
+    }
+
+    fetchAll() {
+        return HttpClient.doRequest(axios => {
+            return axios.get(`${BACKEND_URL}/api/resources`)
+        })
+    }
+
+    save(resource) {
+        return HttpClient.doRequest(axios => {
+            return axios.post(`${BACKEND_URL}/api/resources`, resource, {})
+        }).then((response => {
+            return {...resource, id: response.data}
+        }))
+    }
+
+    update(resource) {
+        return HttpClient.doRequest(axios => {
+            return axios.put(`${BACKEND_URL}/api/resources/${resource.id}`, resource)
+        })
+    }
+
+    delete(resourceId) {
+        return HttpClient.doRequest(axios => {
+            return axios.delete(`${BACKEND_URL}/api/resources/${resourceId}`)
+        })
     }
 }
