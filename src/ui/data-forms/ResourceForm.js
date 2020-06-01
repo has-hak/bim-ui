@@ -42,11 +42,12 @@ class ResourceForm extends React.Component {
     }
 
     componentDidMount() {
+        const inputFormData = this.props.inputFormData || {};
         HttpClient.doRequest(axios => {
             return axios.get(`${BACKEND_URL}/api/compilations`)
                 .then((response) => {
                     const compilations = response.data
-                    const selectedCompilation = compilations.find(compilation => compilation.id === this.props.inputFormData.compilationId) || this.nullCompilation
+                    const selectedCompilation = compilations.find(compilation => compilation.id === inputFormData.compilationId) || this.nullCompilation
                     this.setState({compilations: compilations, selectedCompilation: selectedCompilation})
                 })
         })
@@ -55,7 +56,6 @@ class ResourceForm extends React.Component {
                 .then((response) => {
                     const workforces = response.data;
                     let selectedWorkforces = [];
-                    const inputFormData = this.props.inputFormData;
                     if (inputFormData.workforceIds) {
                         selectedWorkforces = workforces.filter(workforce => inputFormData.workforceIds.includes(workforce.id))
                     }
@@ -67,7 +67,6 @@ class ResourceForm extends React.Component {
                 .then((response) => {
                     const machines = response.data;
                     let selectedMachines = []
-                    const inputFormData = this.props.inputFormData;
                     if (inputFormData.machineIds) {
                         selectedMachines = machines.filter(machine => inputFormData.machineIds.includes(machine.id))
                     }
@@ -79,7 +78,6 @@ class ResourceForm extends React.Component {
                 .then((response) => {
                     const materials = response.data
                     let selectedMaterials = []
-                    const inputFormData = this.props.inputFormData;
                     if (inputFormData.materialIds) {
                         selectedMaterials = materials.filter(material => inputFormData.materialIds.includes(material.id))
                     }
@@ -91,7 +89,7 @@ class ResourceForm extends React.Component {
             this.setState({messages: messages})
         });
 
-        this.formData = {...this.props.inputFormData};
+        this.formData = {...inputFormData};
     }
 
 
@@ -257,7 +255,6 @@ class ResourceForm extends React.Component {
             materialIds: this.state.selectedMaterials.map(value => value.id),
         };
 
-        console.log(data)
         this.props.onSubmit(data);
     }
 }
