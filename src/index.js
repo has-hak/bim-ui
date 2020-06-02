@@ -2,17 +2,17 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
-import {BrowserRouter} from "react-router-dom";
 import * as axios from "axios";
 import App from "./ui/App";
+import MyRouter from "./infrastructure/MyRouter";
 
 axios.defaults.withCredentials = true;
 
 ReactDOM.render(
     <React.StrictMode>
-        <BrowserRouter>
+        <MyRouter>
             <App/>
-        </BrowserRouter>
+        </MyRouter>
     </React.StrictMode>,
     document.getElementById('root')
 );

@@ -7,6 +7,11 @@ import OutlayTable from "./OutlayTable";
 import Divider from "@material-ui/core/Divider";
 import HttpClient from "../../infrastructure/HttpClient";
 import {getMessages} from "../../infrastructure/LanguagesSystem";
+import {IconButton} from '@material-ui/core';
+import Icon from "@material-ui/core/Icon";
+import NotificationContent from "../common/NotificationContent";
+
+const FileDownload = require('js-file-download');
 
 export default class OutlayForm extends React.Component {
 
@@ -62,17 +67,25 @@ export default class OutlayForm extends React.Component {
                     {this.state.selectedFile ? this.state.selectedFile.name : this.state.messages['ui.main.outlay-calculation.not-selected']}
                 </label>
                 {'      '}
-                <Button variant="contained" color="primary" onClick={this.upload.bind(this)}>
+                <Button variant="contained" color="primary" onClick={this.getOutlayData.bind(this)}>
                     <PublishIcon/>
                 </Button>
                 <Divider></Divider>
                 <br/>
                 <OutlayTable data={this.state.outlayData}/>
+                {this.state.showExcel && <IconButton size={'small'} disableFocusRipple={true} color={'primary'} outlined onClick={this.downloadOutlayExcel.bind(this)}>
+                    <Icon fontSize={'large'}>
+                        <img src={"/excel-icon.png"} height={40} width={40}/>
+                    </Icon>
+                    {'  '}
+                    {this.state.messages['ui.main.outlay-calculation.download-excel-version']}
+                </IconButton>}
+                {this.state.errorMessage && <NotificationContent type={'error'} value={this.state.errorMessage}/>}
             </Fragment>
         );
     }
 
-    upload() {
+    getOutlayData() {
         const selectedFile = this.state.selectedFile;
         if (selectedFile) {
             const data = new FormData();
@@ -81,9 +94,34 @@ export default class OutlayForm extends React.Component {
             HttpClient.doRequest(axios => {
                 return axios.post(`${BACKEND_URL}/api/outlay/process-budget-document`, data, {})
                     .then(res => { // then print response status
-                        this.setState({outlayData: res.data})
+                        this.setState({outlayData: res.data, showExcel: true, errorMessage: null})
+                    }).catch(error => {
+                        if (error.response && error.response.data) {
+                            this.setState({errorMessage: error.response.data})
+                        }
                     })
             })
+        }
+    }
+
+    downloadOutlayExcel() {
+        const selectedFile = this.state.selectedFile;
+        if (selectedFile) {
+            const data = new FormData();
+            data.append('file', selectedFile)
+
+            HttpClient.doRequest(axios => {
+                return axios.post(`${BACKEND_URL}/api/outlay/calculate-from-budget-document`, data, {
+                    responseType: 'arraybuffer',
+                })
+            }).then((response) => {
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', 'նախահաշիվ.xlsx');
+                document.body.appendChild(link);
+                link.click();
+            });
         }
     }
 }

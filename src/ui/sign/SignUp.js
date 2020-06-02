@@ -12,12 +12,12 @@ import Box from "@material-ui/core/Box";
 import {withRouter} from "react-router-dom";
 import {withStyles} from "@material-ui/core";
 import UserContext from "../../infrastructure/UserContext";
-import {signInRouting} from "../../infrastructure/Router";
+import {signInRouting} from "../../infrastructure/MyRouter";
 import {getMessages} from "../../infrastructure/LanguagesSystem";
 
 class SignUp extends React.Component {
 
-    messagesSubscription ;
+    messagesSubscription;
 
     state = {
         messages: {
@@ -38,7 +38,7 @@ class SignUp extends React.Component {
     }
 
     componentWillUnmount() {
-       this.messagesSubscription.unsubscribe();
+        this.messagesSubscription.unsubscribe();
     }
 
     render() {
@@ -101,7 +101,8 @@ class SignUp extends React.Component {
                     </Button>
                     <Grid container>
                         <Grid item>
-                            <Link href={signInRouting} variant="body2">
+                            <Link className={classes.link} onClick={() => this.props.history.push(signInRouting)}
+                                  variant="body2">
                                 {"Already have an account? Sign in"}
                             </Link>
                         </Grid>
@@ -139,6 +140,9 @@ const useStyles = (theme) => ({
         margin: theme.spacing(3, 0, 2),
         backgroundColor: theme.palette.secondary.main
     },
+    link: {
+        cursor: 'pointer'
+    }
 });
 
 export default withRouter(withStyles(useStyles)(SignUp))

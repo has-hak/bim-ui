@@ -7,6 +7,9 @@ import MaterialTable from "material-table";
 import AddToPhotosIcon from "@material-ui/icons/AddToPhotos";
 import Drawer from "@material-ui/core/Drawer";
 import MaterialForm from "../data-forms/MaterialForm";
+import UserContext from "../../infrastructure/UserContext";
+import NotificationContent from "../common/NotificationContent";
+import {buildErrorMessage} from "../../infrastructure/util/Util";
 
 export default class MaterialsTable extends React.Component {
 
@@ -19,7 +22,11 @@ export default class MaterialsTable extends React.Component {
             data: {}
         },
         materials: [],
-        messages: {}
+        messages: {},
+        tableConfig: {
+            actions: [],
+            editable: {}
+        }
     }
 
     componentDidMount() {
@@ -30,10 +37,44 @@ export default class MaterialsTable extends React.Component {
         this.messagesSubscription = getMessages().subscribe(messages => {
             this.setState({messages: messages})
         });
+
+        this.userSubscription = UserContext.listenCurrentUser().subscribe(user => {
+            if (user.hasRole(['ADMIN', 'MANAGER'])) {
+                const actions = [
+                    {
+                        icon: () => <AddToPhotosIcon fontSize={'large'}/>,
+                        onClick: () => {
+                            this.setState({drawerMetadata: {isOpen: true, editType: 'add'}});
+                        },
+                        isFreeAction: true,
+                    },
+                    {
+                        icon: 'edit',
+                        onClick: (event, rowData) => {
+                            this.setState({drawerMetadata: {isOpen: true, editType: 'edit', data: rowData}});
+                        },
+                    },
+                ]
+
+                const editable = {
+                    onRowDelete: (oldData) =>
+                        this.delete(oldData.id).then(() => {
+                            this.setState((prevState) => {
+                                const data = [...prevState.materials];
+                                data.splice(data.indexOf(oldData), 1);
+                                return {...prevState, materials: data};
+                            })
+                        }).catch(reason => console.log(reason))
+                }
+
+                this.setState({tableConfig: {actions: actions, editable: editable}});
+            }
+        });
     }
 
     componentWillUnmount() {
         this.messagesSubscription.unsubscribe();
+        this.userSubscription.unsubscribe();
     }
 
     render() {
@@ -59,35 +100,11 @@ export default class MaterialsTable extends React.Component {
                     options={{
                         actionsColumnIndex: -1
                     }}
-                    actions={[
-                        {
-                            icon: () => <AddToPhotosIcon fontSize={'large'}/>,
-                            onClick: () => {
-                                this.setState({drawerMetadata: {isOpen: true, editType: 'add'}});
-                            },
-                            isFreeAction: true,
-                        },
-                        {
-                            icon: 'edit',
-                            onClick: (event, rowData) => {
-                                this.setState({drawerMetadata: {isOpen: true, editType: 'edit', data: rowData}});
-                            },
-                        },
-                    ]}
-                    editable={{
-                        onRowDelete: (oldData) =>
-                            this.delete(oldData.id).then(() => {
-                                this.setState((prevState) => {
-                                    const data = [...prevState.materials];
-                                    data.splice(data.indexOf(oldData), 1);
-                                    return {...prevState, materials: data};
-                                })
-                            }).catch(reason => console.log(reason))
-                    }}
+                    actions={this.state.tableConfig.actions}
+                    editable={this.state.tableConfig.editable}
                 />
                 <Drawer anchor={'right'} open={this.state.drawerMetadata.isOpen}
-                        onClose={() => this.setState({drawerMetadata: {isOpen: false}})}
-                        onOpen={() => true}>
+                        onClose={() => this.setState({drawerMetadata: {isOpen: false}, errorMessage: null})}>
                     <MaterialForm inputFormData={this.state.drawerMetadata.data} onSubmit={(formData) => {
                         let promise;
                         if (this.state.drawerMetadata.editType === 'add') {
@@ -109,8 +126,10 @@ export default class MaterialsTable extends React.Component {
                             })
                         }
                         promise.then(() => this.setState({drawerMetadata: {}}))
+                            .catch(error => this.setState({errorMessage: buildErrorMessage(error.response.data, this.state.messages)}))
                     }
                     }/>
+                    {this.state.errorMessage && <NotificationContent type={'error'} value={this.state.errorMessage}/>}
                 </Drawer>
             </Fragment>
         );
@@ -140,5 +159,13 @@ export default class MaterialsTable extends React.Component {
         return HttpClient.doRequest(axios => {
             return axios.delete(`${BACKEND_URL}/api/materials/${materialId}`)
         })
+    }
+
+    buildErrorMessage(errorData) {
+        let message = ""
+        Object.values(errorData).forEach((errorMessageKey) => {
+            message += this.state.messages[errorMessageKey] + "\n"
+        });
+        return message;
     }
 }

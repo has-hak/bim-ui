@@ -22,7 +22,6 @@ import Button from "@material-ui/core/Button";
 import UserContext from "../infrastructure/UserContext";
 import {Subject} from "rxjs";
 import {getMessages} from "../infrastructure/LanguagesSystem";
-import DataImport from "./data-forms/DataImport";
 
 class Main extends React.Component {
 
@@ -115,9 +114,6 @@ class Main extends React.Component {
                     <div className={classes.toolbar}/>
 
                     <Switch>
-                        <Route path={`${match.path}/data-import`}>
-                            <DataImport/>
-                        </Route>
                         <Route path={`${match.path}/data-view`}>
                             <DataView/>
                         </Route>
@@ -131,7 +127,7 @@ class Main extends React.Component {
     }
 }
 
-const drawerWidth = 240;
+const drawerWidth = 300;
 
 const useStyles = (theme) => ({
     root: {

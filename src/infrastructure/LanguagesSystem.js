@@ -46,9 +46,10 @@ export function getMessages() {
 export function changeCurrentLanguage(languageId) {
     languagesSubject.pipe(take(1)).subscribe(languages => {
         const language = languages.find(language => language.id === languageId);
-        if (!language) {
-            throw new Error("Invalid language id: " + languageId);
+        if (language) {
+            currentLanguage.next(language);
+        } else {
+            console.warn("Invalid language id: " + languageId);
         }
-        currentLanguage.next(language);
     });
 }

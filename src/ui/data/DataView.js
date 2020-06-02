@@ -9,7 +9,6 @@ import MaterialsTable from "./MaterialsTable";
 import WorkforcesTable from "./WorkforcesTable";
 import MachinesTable from "./MachinesTable";
 import {withStyles} from "@material-ui/core";
-import {dataImportRouting} from "../../infrastructure/Router";
 import {getMessages} from "../../infrastructure/LanguagesSystem";
 
 const useStyles = (theme) => ({
@@ -37,20 +36,6 @@ class DataView extends React.Component {
 
     componentWillUnmount() {
         this.messagesSubscription.unsubscribe();
-    }
-
-    addNew() {
-        const props = this.props;
-        const {match} = props;
-
-        const tabs = ["compilations", 'resources', 'workforces', 'machines', 'materials']
-
-        const tabIndex = this.getCurrentTabIndex(match.url);
-        if (tabIndex === -1) {
-            throw new Error("Illegal State");
-        }
-
-        props.history.push(`${dataImportRouting}/${tabs[tabIndex]}`);
     }
 
     render() {

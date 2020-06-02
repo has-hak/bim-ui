@@ -4,7 +4,7 @@ import SignIn from "./sign/SignIn";
 import Main from "./Main";
 import SignUp from "./sign/SignUp";
 import LanguageSwitch from "./LanguageSwitch";
-import {redirectionToDefault} from "../infrastructure/Router";
+import {redirectionToDefault} from "../infrastructure/MyRouter";
 
 class App extends React.Component {
 

@@ -7,6 +7,9 @@ import MaterialTable from "material-table";
 import AddToPhotosIcon from "@material-ui/icons/AddToPhotos";
 import Drawer from "@material-ui/core/Drawer";
 import WorkforceForm from "../data-forms/WorkforceForm";
+import UserContext from "../../infrastructure/UserContext";
+import NotificationContent from "../common/NotificationContent";
+import {buildErrorMessage} from "../../infrastructure/util/Util";
 
 export default class WorkforcesTable extends React.Component {
 
@@ -19,7 +22,11 @@ export default class WorkforcesTable extends React.Component {
             data: {}
         },
         workforces: [],
-        messages: []
+        messages: [],
+        tableConfig: {
+            actions: [],
+            editable: {}
+        }
     }
 
     componentDidMount() {
@@ -30,10 +37,44 @@ export default class WorkforcesTable extends React.Component {
         this.messagesSubscription = getMessages().subscribe(messages => {
             this.setState({messages: messages})
         });
+
+        this.userSubscription = UserContext.listenCurrentUser().subscribe(user => {
+            if (user.hasRole(['ADMIN', 'MANAGER'])) {
+                const actions = [
+                    {
+                        icon: () => <AddToPhotosIcon fontSize={'large'}/>,
+                        onClick: () => {
+                            this.setState({drawerMetadata: {isOpen: true, editType: 'add'}});
+                        },
+                        isFreeAction: true,
+                    },
+                    {
+                        icon: 'edit',
+                        onClick: (event, rowData) => {
+                            this.setState({drawerMetadata: {isOpen: true, editType: 'edit', data: rowData}});
+                        },
+                    },
+                ]
+
+                const editable = {
+                    onRowDelete: (oldData) =>
+                        this.delete(oldData.id).then(() => {
+                            this.setState((prevState) => {
+                                const data = [...prevState.workforces];
+                                data.splice(data.indexOf(oldData), 1);
+                                return {...prevState, workforces: data};
+                            })
+                        }).catch(reason => console.log(reason))
+                }
+
+                this.setState({tableConfig: {actions: actions, editable: editable}});
+            }
+        });
     }
 
     componentWillUnmount() {
         this.messagesSubscription.unsubscribe();
+        this.userSubscription.unsubscribe();
     }
 
     render() {
@@ -54,42 +95,18 @@ export default class WorkforcesTable extends React.Component {
                     options={{
                         actionsColumnIndex: -1
                     }}
-                    actions={[
-                        {
-                            icon: () => <AddToPhotosIcon fontSize={'large'}/>,
-                            onClick: () => {
-                                this.setState({drawerMetadata: {isOpen: true, editType: 'add'}});
-                            },
-                            isFreeAction: true,
-                        },
-                        {
-                            icon: 'edit',
-                            onClick: (event, rowData) => {
-                                this.setState({drawerMetadata: {isOpen: true, editType: 'edit', data: rowData}});
-                            },
-                        },
-                    ]}
-                    editable={{
-                        onRowDelete: (oldData) =>
-                            this.delete(oldData.id).then(() => {
-                                this.setState((prevState) => {
-                                    const data = [...prevState.workforces];
-                                    data.splice(data.indexOf(oldData), 1);
-                                    return {...prevState, workforces: data};
-                                })
-                            }).catch(reason => console.log(reason))
-                    }}
+                    actions={this.state.tableConfig.actions}
+                    editable={this.state.tableConfig.editable}
                 />
                 <Drawer anchor={'right'} open={this.state.drawerMetadata.isOpen}
-                        onClose={() => this.setState({drawerMetadata: {isOpen: false}})}
-                        onOpen={() => true}>
+                        onClose={() => this.setState({drawerMetadata: {isOpen: false}, errorMessage: null})}>
                     <WorkforceForm inputFormData={this.state.drawerMetadata.data} onSubmit={(formData) => {
                         let promise;
                         if (this.state.drawerMetadata.editType === 'add') {
                             promise = this.save(formData)
                                 .then((savedCompilation) => {
                                     this.setState((prevState) => {
-                                        const data = [...prevState.compilations];
+                                        const data = [...prevState.workforces];
                                         data.push(savedCompilation);
                                         return {...prevState, workforces: data};
                                     })
@@ -97,15 +114,17 @@ export default class WorkforcesTable extends React.Component {
                         } else {
                             promise = this.update(formData).then(() => {
                                 this.setState((prevState) => {
-                                    const data = [...prevState.compilations];
+                                    const data = [...prevState.workforces];
                                     data[data.indexOf(this.state.drawerMetadata.data)] = formData;
                                     return {...prevState, workforces: data};
                                 });
                             })
                         }
                         promise.then(() => this.setState({drawerMetadata: {}}))
+                            .catch(error => this.setState({errorMessage: buildErrorMessage(error.response.data, this.state.messages)}))
                     }
                     }/>
+                    {this.state.errorMessage && <NotificationContent type={'error'} value={this.state.errorMessage}/>}
                 </Drawer>
             </Fragment>
         );

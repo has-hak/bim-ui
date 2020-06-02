@@ -12,7 +12,7 @@ import Container from '@material-ui/core/Container';
 import {withStyles} from "@material-ui/core";
 import UserContext from "../../infrastructure/UserContext";
 import {withRouter} from "react-router-dom";
-import {redirectionToDefault, signUpRouting} from "../../infrastructure/Router";
+import {defaultRouting, signUpRouting} from "../../infrastructure/MyRouter";
 import {getMessages} from "../../infrastructure/LanguagesSystem";
 
 class SignIn extends React.Component {
@@ -33,17 +33,21 @@ class SignIn extends React.Component {
     componentDidMount() {
         this.messagesSubscription = getMessages().subscribe(messages => {
             this.setState({messages: messages})
-        }); }
+        });
+
+
+        UserContext.getCurrentUser().subscribe((currentUser) => {
+            if (currentUser.isReal()) {
+                this.props.history.push(defaultRouting)
+            }
+        });
+    }
 
     componentWillUnmount() {
         this.messagesSubscription.unsubscribe();
     }
 
     render() {
-        if (UserContext.signed) {
-            return redirectionToDefault();
-        }
-
         const {classes} = this.props;
 
         return (
@@ -91,7 +95,8 @@ class SignIn extends React.Component {
                     </Button>
                     <Grid container>
                         <Grid item>
-                            <Link href={signUpRouting} variant="body2">
+                            <Link className={classes.link} onClick={() => this.props.history.push(signUpRouting)}
+                                  variant="body2">
                                 {"Don't have an account? Sign Up"}
                             </Link>
                         </Grid>
@@ -128,6 +133,9 @@ const useStyles = (theme) => ({
     submit: {
         margin: theme.spacing(3, 0, 2),
     },
+    link: {
+        cursor: 'pointer'
+    }
 });
 
 export default withRouter(withStyles(useStyles)(SignIn))
