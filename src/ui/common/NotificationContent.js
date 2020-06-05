@@ -42,7 +42,7 @@ export default class NotificationContent extends PureComponent {
 
         return (
             <Fragment>
-                {value.split("\n").map(v => <Fragment>
+                { (typeof value === 'string') && value.split("\n").map(v => <Fragment>
                     <div className={notificationWrapper} ref={(el) => this.alertWrapper = el}>
                         <div className={iconWrapper}>
                         </div>
