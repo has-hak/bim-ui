@@ -4,13 +4,6 @@ import PropTypes from 'prop-types';
 import './notificationContent.css';
 
 export default class NotificationContent extends PureComponent {
-    componentDidMount() {
-        this.alertWrapper.scrollIntoView(false);
-    }
-
-    componentDidUpdate() {
-        this.alertWrapper.scrollIntoView(false);
-    }
 
     render() {
         const {value, type} = this.props;
@@ -43,7 +36,7 @@ export default class NotificationContent extends PureComponent {
         return (
             <Fragment>
                 { (typeof value === 'string') && value.split("\n").map(v => <Fragment>
-                    <div className={notificationWrapper} ref={(el) => this.alertWrapper = el}>
+                    <div className={notificationWrapper}>
                         <div className={iconWrapper}>
                         </div>
                         <p>{v}</p>
